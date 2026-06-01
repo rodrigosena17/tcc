@@ -81,7 +81,7 @@ def tratar_dados(caminho_txt, ano):
         os.makedirs(saida_csv_dir, exist_ok=True)
 
         # organizar_pnad agora recebe caminhos de saida
-        organizar_pnad(caminho_txt, saida_txt_dir, saida_csv_dir)
+        organizar_pnad(caminho_txt, saida_csv_dir)
         print(f"Arquivo organizado gerado para o ano {ano_folder}.\n")
     except Exception as e:
         print(f"Erro ao processar {caminho_txt}: {e}\n")
