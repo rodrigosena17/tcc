@@ -1,157 +1,119 @@
 import pandas as pd
+import numpy as np
 import os
 
-
-def organizar_pnad(caminho_txt, saida_csv_dir):
+def organizar_pnad(caminho_txt, saida_txt_dir, saida_csv_dir):
     """
-    Lê o arquivo TXT da PNAD Contínua,
-    extrai apenas as variáveis da base definitiva,
-    normaliza os pesos amostrais
-    e salva a base organizada em CSV.
+    Lê o arquivo .txt da PNAD Contínua (Trimestral), organiza conforme layout fixo,
+    converte para DataFrame e salva versões organizadas em TXT e CSV.
     """
-
     print(f"Lendo arquivo bruto: {caminho_txt}")
 
-    layout_definitivo = {
-        "variavel": [
-            "Ano",
-            "Trimestre",
-            "UF",
-            "V1028",
-            "V2007",
-            "V2009",
-            "V2010",
-            "V3009A",
-            "V3014",
-            "V4001",
-            "V4010",
-            "V4012",
-            "V4013",
-            "V4028",
-            "V4029",
-            "V403312",
-            "V4039",
-            "V4040",
-            "V4071"
+    # Definição do layout fixo exato baseado no Dicionário Trimestral
+    layout_data = {
+        'variavel': [
+            "Ano", "Trimestre", "UF",
+            "V1028",   # Peso do domicílio e das pessoas com calibração
+            "V2007",   # Sexo
+            "V2009",   # Idade
+            "V2010",   # Cor/Raça
+            "V3009A",  # Nível educacional
+            "V3014",   # Concluiu o curso que frequentou
+            "V4001",   # Trabalhou ou estagiou, pelo menos 1 hora
+            "V4010",   # Cargo/função
+            "V4012",   # Posição no trabalho
+            "V4013",   # Principal atividade desse negócio
+            "V4028",   # Servidor público
+            "V4029",   # Carteira assinada
+            "V403312", # Rendimento bruto mensal em reais
+            "V4039",   # Horas trabalhadas por semana
+            "V4040",   # Quanto tempo de trabalho
+            "V4071"    # Providência para conseguir trabalho
         ],
-
-        "start": [
-            1,    # Ano
-            5,    # Trimestre
-            17,   # UF
-            44,   # V1028
-            89,   # V2007
-            98,   # V2009
-            101,  # V2010
-            119,  # V3009A
-            129,  # V3014
-            130,  # V4001
-            146,  # V4010
-            150,  # V4012
-            152,  # V4013
-            188,  # V4028
-            189,  # V4029
-            194,  # V403312
-            235,  # V4039
-            241,  # V4040
-            370   # V4071
+        'start': [
+            1, 5, 6,       # Ano, Trimestre, UF [1]
+            50,            # V1028 [2]
+            95,            # V2007 [3]
+            104,           # V2009 [4]
+            107,           # V2010 [4]
+            125,           # V3009A [5]
+            135,           # V3014 [6]
+            136,           # V4001 [7]
+            152,           # V4010 [8]
+            156,           # V4012 [8]
+            158,           # V4013 [9]
+            194,           # V4028 [10]
+            195,           # V4029 [10]
+            200,           # V403312 [11]
+            241,           # V4039 [12]
+            247,           # V4040 [13]
+            376            # V4071 [14]
         ],
-
-        "width": [
-            4,   # Ano
-            1,   # Trimestre
-            2,   # UF
-            15,  # V1028
-            1,   # V2007
-            3,   # V2009
-            1,   # V2010
-            2,   # V3009A
-            1,   # V3014
-            1,   # V4001
-            4,   # V4010
-            1,   # V4012
-            5,   # V4013
-            1,   # V4028
-            1,   # V4029
-            8,   # V403312
-            3,   # V4039
-            1,   # V4040
-            1    # V4071
+        'width': [
+            4, 1, 2,       # Ano, Trimestre, UF [1]
+            15,            # V1028 [2]
+            1,             # V2007 [3]
+            3,             # V2009 [4]
+            1,             # V2010 [4]
+            2,             # V3009A [5]
+            1,             # V3014 [6]
+            1,             # V4001 [7]
+            4,             # V4010 [8]
+            1,             # V4012 [8]
+            5,             # V4013 [9]
+            1,             # V4028 [10]
+            1,             # V4029 [10]
+            8,             # V403312 [11]
+            3,             # V4039 [12]
+            1,             # V4040 [13]
+            1              # V4071 [14]
         ]
     }
 
-    layout = pd.DataFrame(layout_definitivo)
+    layout = pd.DataFrame(layout_data)
+    
+    # O read_fwf do pandas requer que as posições tenham base zero (start - 1)
+    fwf_cols = list(zip(layout['start'] - 1, layout['start'] - 1 + layout['width']))
 
-    fwf_cols = list(
-        zip(
-            layout["start"] - 1,
-            layout["start"] - 1 + layout["width"]
-        )
-    )
-
+    # Leitura do arquivo FWF (fixed-width format)
     df = pd.read_fwf(
         caminho_txt,
         colspecs=fwf_cols,
-        names=layout["variavel"],
+        names=layout['variavel'],
         dtype=str,
-        encoding="latin1"
+        encoding='latin1'
     )
 
-    print(
-        f"Arquivo carregado: "
-        f"{df.shape[0]} linhas, "
-        f"{df.shape[1]} colunas"
-    )
+    print(f"Arquivo carregado: {df.shape[0]} linhas, {df.shape[1]} colunas")
 
-    # Remover espaços residuais
+    # Conversões numéricas para evitar erros de tipagem
     for col in df.columns:
-        df[col] = df[col].str.strip()
+        df[col] = pd.to_numeric(df[col].str.strip(), errors='coerce')
 
-    # Converter para numérico
-    for col in df.columns:
-        df[col] = pd.to_numeric(
-            df[col],
-            errors="coerce"
-        )
+    # Normalização dos pesos (se vierem em escala inteira do IBGE)
+    if 'V1028' in df.columns and df['V1028'].max(skipna=True) > 1e6:
+        df['V1028'] = df['V1028'] / 1e8
 
-    # Normalização do peso amostral
-    if "V1028" in df.columns:
-
-        max_peso = df["V1028"].max(skipna=True)
-
-        if pd.notna(max_peso) and max_peso > 1_000_000:
-            df["V1028"] = df["V1028"] / 100_000_000
-
-    # Filtro Pernambuco
+    # Filtro para Pernambuco (UF == 26) conforme as bases do seu projeto
     if "UF" in df.columns:
-
         df = df[df["UF"] == 26]
+        print(f"Filtrado para Pernambuco: {df.shape} linhas restantes.")
 
-        print(
-            f"Filtrado para Pernambuco: "
-            f"{df.shape[0]} linhas restantes."
-        )
+    # Salvamento do arquivo organizado
+    nome_base = os.path.splitext(os.path.basename(caminho_txt))[0]
+    
+    # Validação e criação dos diretórios, caso não existam (Boa prática)
+    os.makedirs(saida_txt_dir, exist_ok=True)
+    os.makedirs(saida_csv_dir, exist_ok=True)
+    
+    caminho_saida_txt = os.path.join(saida_txt_dir, f"{nome_base}_organizado.txt")
+    caminho_saida_csv = os.path.join(saida_csv_dir, f"{nome_base}_organizado.csv")
 
-    nome_base = os.path.splitext(
-        os.path.basename(caminho_txt)
-    )[0]
+    # Salva em formato TXT (separado por tabulação) e CSV
+    df.to_csv(caminho_saida_txt, sep="\t", index=False)
+    print(f"Arquivo organizado salvo em: {caminho_saida_txt}")
 
-    caminho_saida_csv = os.path.join(
-        saida_csv_dir,
-        f"{nome_base}_organizado.csv"
-    )
+    df.to_csv(caminho_saida_csv, sep=",", index=False)
+    print(f"Arquivo CSV salvo em: {caminho_saida_csv}")
 
-    # Mantém ';' para compatibilidade com Excel/LibreOffice
-    df.to_csv(
-        caminho_saida_csv,
-        sep=";",
-        index=False,
-        encoding="utf-8"
-    )
-
-    print(
-        f"Arquivo CSV salvo em: "
-        f"{caminho_saida_csv}"
-    )
-
-    return caminho_saida_csv
+    return caminho_saida_txt, caminho_saida_csv
