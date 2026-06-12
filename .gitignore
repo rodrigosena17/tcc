@@ -15,6 +15,10 @@ data/microdados_pnad/dados_organizados_csv/
 data_microdados_pnad/dados_empilhados/
 data/microdados_pnad/dados_organizados_txt/
 
+pnad_estatisticas copy.py
+pnad_organizacao copy.py
+
+
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -269,4 +273,3 @@ data/microdados_pnad/dados_organizados_txt/2025/PNADC_012025_organizado.txt
 data/microdados_pnad/dados_organizados_txt/2025/PNADC_022025_organizado.txt
 data/microdados_pnad/dados_organizados_txt/2025/PNADC_032025_organizado.txt
 data/microdados_pnad/dados_organizados_txt/2025/PNADC_042025_organizado.txt
-
