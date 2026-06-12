@@ -171,6 +171,77 @@ if __name__ == "__main__":
 
         resumo_por_ano[ano_folder] = resumo
 
+
+
+    def empilhar_estatisticas(pasta_estatisticas, caminho_saida):
+        """
+        Procura todos os arquivos *_estatisticas.csv
+        dentro das pastas de anos e cria um único
+        arquivo consolidado.
+        """
+    
+
+        arquivos = []
+
+        for root, _, files in os.walk(pasta_estatisticas):
+
+            for file in files:
+
+                if (
+                    file.endswith("_estatisticas.csv")
+                    and file != "estatisticas_empilhadas.csv"
+                ):
+
+                    arquivos.append(
+                        os.path.join(root, file)
+                    )
+
+        if not arquivos:
+            print("Nenhum arquivo de estatísticas encontrado.")
+            return
+
+        dfs = []
+
+        for arquivo in sorted(arquivos):
+
+            print(f"Empilhando: {arquivo}")
+
+            try:
+                df = pd.read_csv(arquivo)
+                dfs.append(df)
+
+            except Exception as e:
+
+                print(
+                    f"Erro ao ler {arquivo}: {e}"
+                )
+
+        if not dfs:
+            print("Nenhum dado válido encontrado.")
+            return
+
+        df_final = pd.concat(
+            dfs,
+            ignore_index=True
+        )
+
+        df_final = df_final.sort_values(
+            ["Ano", "Trimestre"]
+        )
+
+        df_final.to_csv(
+            caminho_saida,
+            index=False
+        )
+
+        print(
+            f"Estatísticas empilhadas salvas em:\n"
+            f"{caminho_saida}"
+        )
+
+
+
+
     # Exibir resultados
     print("\nArquivos de estatisticas gerados:")
 
@@ -182,9 +253,20 @@ if __name__ == "__main__":
                 f" - {ano_key} combinado: "
                 f"{resumo['combinado']}"
             )
+    caminho_empilhado_estatisticas = os.path.join(
+        "data",
+        "estatisticas_empilhadas.csv"
+    )
 
-        for chave, caminho in resumo.get('por_ano', {}).items():
+    empilhar_estatisticas(
+        pasta_resultados_est,
+        caminho_empilhado_estatisticas
+    )
+
+    for chave, caminho in resumo.get('por_ano', {}).items():
 
             print(f" - {ano_key}: {caminho}")
 
     print("\nProcesso completo!")
+
+    

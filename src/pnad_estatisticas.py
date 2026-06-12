@@ -133,15 +133,7 @@ def calcular_estatisticas(base_dir_organizados_csv: str,
         ["Ano", "Trimestre"]
     )
 
-    caminho_completo = os.path.join(
-        pasta_resultados,
-        "estatisticas_completas.csv"
-    )
-
-    resultados_df.to_csv(
-        caminho_completo,
-        index=False
-    )
+    
 
     arquivos_por_ano = {}
 
@@ -163,12 +155,8 @@ def calcular_estatisticas(base_dir_organizados_csv: str,
 
         arquivos_por_ano[ano] = caminho_ano
 
-    print(df["V4001"].value_counts())
-    print(df["V4029"].value_counts())
-    print(df["V3009A"].value_counts().sort_index())
 
     return {
-        "combinado": caminho_completo,
         "por_ano": arquivos_por_ano,
         "tabela_resultados": resultados_df
     }
