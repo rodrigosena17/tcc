@@ -24,7 +24,7 @@ for p in [pasta_zips, pasta_descompactados, pasta_organizados_txt, pasta_organiz
     os.makedirs(p, exist_ok=True)
 
 # Lista de anos a serem baixados
-anos_teste = ["2019/", "2020/", "2021/", "2022/", "2023/", "2024/", "2025/"]
+anos_teste = ["2019/", "2020/", "2021/", "2022/", "2023/", "2024/", "2025/"] 
 
 # Auxiliar: normalizar ano (ex: "2024/" -> "2024")
 def ano_para_pasta(ano_str):
@@ -239,7 +239,56 @@ if __name__ == "__main__":
             f"{caminho_saida}"
         )
 
+    def empilhar_csvs(pasta_origem, nome_arquivo, caminho_saida):
 
+        arquivos = []
+
+        for root, _, files in os.walk(pasta_origem):
+
+            for file in files:
+
+                if (
+                    file.endswith(nome_arquivo)
+                    and file != os.path.basename(caminho_saida)
+                ):
+
+                    arquivos.append(
+                        os.path.join(root, file)
+                    )
+
+        if not arquivos:
+            print(f"Nenhum {nome_arquivo} encontrado.")
+            return
+
+        dfs = []
+
+        for arquivo in sorted(arquivos):
+
+            print(f"Empilhando: {arquivo}")
+
+            try:
+                dfs.append(
+                    pd.read_csv(arquivo)
+                )
+
+            except Exception as e:
+
+                print(f"Erro ao ler {arquivo}: {e}")
+
+        if not dfs:
+            return
+
+        df_final = pd.concat(
+            dfs,
+            ignore_index=True
+        )
+
+        df_final.to_csv(
+            caminho_saida,
+            index=False
+        )
+
+        print(f"Arquivo consolidado salvo em:\n{caminho_saida}")
 
 
     # Exibir resultados
@@ -261,6 +310,28 @@ if __name__ == "__main__":
     empilhar_estatisticas(
         pasta_resultados_est,
         caminho_empilhado_estatisticas
+    )
+
+    caminho_empilhado_escolaridade = os.path.join(
+        "data",
+        "renda_escolaridade_empilhada.csv"
+    )
+
+    empilhar_csvs(
+        pasta_resultados_est,
+        "_renda_escolaridade.csv",
+        caminho_empilhado_escolaridade
+    )
+
+    caminho_empilhado_horas = os.path.join(
+        "data",
+        "renda_horas_semanais_empilhada.csv"
+    )
+
+    empilhar_csvs(
+        pasta_resultados_est,
+        "_renda_horas_semanais.csv",
+        caminho_empilhado_horas
     )
 
     for chave, caminho in resumo.get('por_ano', {}).items():
