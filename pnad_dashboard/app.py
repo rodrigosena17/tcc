@@ -9,22 +9,33 @@ st.set_page_config(
 
 CSS = """
 <style>
-    .main {
-        background-color: #faf8ef;
-    }
     .stApp {
         background-color: #faf8ef;
+    }
+
+    .main, .block-container {
+        color: #2b2b2b;
+    }
+    .main p, .main li, .main span, .main label,
+    .block-container p, .block-container li,
+    .block-container span, .block-container label {
+        color: #2b2b2b;
+    }
+
+    .main h1, .main h2, .main h3, .main h4 {
+        color: #1d5631 !important;
     }
 
     section[data-testid="stSidebar"] {
         background-color: #1d5631;
     }
-    section[data-testid="stSidebar"] * {
-        color: #ffffff !important;
-    }
-    section[data-testid="stSidebar"] label,
+    section[data-testid="stSidebar"] h1,
+    section[data-testid="stSidebar"] h2,
+    section[data-testid="stSidebar"] h3,
     section[data-testid="stSidebar"] p,
-    section[data-testid="stSidebar"] span {
+    section[data-testid="stSidebar"] span,
+    section[data-testid="stSidebar"] label,
+    section[data-testid="stSidebar"] div {
         color: #ffffff !important;
     }
 
@@ -36,19 +47,15 @@ CSS = """
     }
     div[data-testid="stMetricValue"] {
         font-size: 1.6rem;
-        color: #a52828;
+        color: #a52828 !important;
         font-weight: 700;
     }
     div[data-testid="stMetricLabel"] {
         font-weight: 600;
-        color: #1d5631;
+        color: #1d5631 !important;
     }
     div[data-testid="stMetricDelta"] {
-        color: #5a8a3c;
-    }
-
-    .main h1, .main h2, .main h3 {
-        color: #1d5631;
+        color: #5a8a3c !important;
     }
 
     button[data-baseweb="tab"] {
