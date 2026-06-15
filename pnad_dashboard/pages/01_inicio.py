@@ -1,6 +1,9 @@
 import streamlit as st
+from utils.estilo import aplicar_estilo
 
 st.set_page_config(page_title="Inicio - PNAD", layout="wide")
+
+aplicar_estilo()
 
 st.title("Sobre o Projeto")
 

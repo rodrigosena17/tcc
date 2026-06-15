@@ -14,7 +14,7 @@ PALETA = [
 
 LAYOUT_BASE = dict(
     template="plotly_white",
-    font=dict(family="Segoe UI, sans-serif", color="#3a4a3a"),
+    font=dict(family="Segoe UI, sans-serif", color="#000000"),
     title_font=dict(size=18, color="#1d5631"),
     margin=dict(l=40, r=20, t=60, b=40),
     hovermode="x unified",
@@ -26,6 +26,7 @@ LAYOUT_BASE = dict(
         y=1.02,
         xanchor="left",
         x=0,
+        font=dict(color="#000000"),
     ),
 )
 
@@ -45,8 +46,20 @@ def grafico_linha(df, x, ys, titulo, rotulo_y="Valor"):
         )
     fig.update_layout(title=titulo, xaxis_title="Periodo", yaxis_title=rotulo_y)
     fig.update_layout(**LAYOUT_BASE)
-    fig.update_xaxes(gridcolor="#e3ddc4", zeroline=False)
-    fig.update_yaxes(gridcolor="#e3ddc4", zeroline=False)
+    fig.update_xaxes(
+        gridcolor="#e3ddc4",
+        zeroline=False,
+        tickfont=dict(color="#000000"),
+        title_font=dict(color="#000000"),
+        linecolor="#000000",
+    )
+    fig.update_yaxes(
+        gridcolor="#e3ddc4",
+        zeroline=False,
+        tickfont=dict(color="#000000"),
+        title_font=dict(color="#000000"),
+        linecolor="#000000",
+    )
     return fig
 
 
@@ -62,10 +75,21 @@ def grafico_barras(df, x, y, titulo, cor=None, orientacao="v"):
     fig.update_traces(marker_line_width=0)
     fig.update_layout(title=titulo)
     fig.update_layout(**LAYOUT_BASE)
-    fig.update_xaxes(gridcolor="#e3ddc4", zeroline=False)
-    fig.update_yaxes(gridcolor="#e3ddc4", zeroline=False)
+    fig.update_xaxes(
+        gridcolor="#e3ddc4",
+        zeroline=False,
+        tickfont=dict(color="#000000"),
+        title_font=dict(color="#000000"),
+        linecolor="#000000",
+    )
+    fig.update_yaxes(
+        gridcolor="#e3ddc4",
+        zeroline=False,
+        tickfont=dict(color="#000000"),
+        title_font=dict(color="#000000"),
+        linecolor="#000000",
+    )
     return fig
-
 
 def grafico_dispersao(df, x, y, titulo, cor=None):
     fig = px.scatter(
@@ -79,6 +103,18 @@ def grafico_dispersao(df, x, y, titulo, cor=None):
     fig.update_traces(marker=dict(size=9, line=dict(width=0.5, color="#ffffff")))
     fig.update_layout(title=titulo)
     fig.update_layout(**LAYOUT_BASE)
-    fig.update_xaxes(gridcolor="#e3ddc4", zeroline=False)
-    fig.update_yaxes(gridcolor="#e3ddc4", zeroline=False)
+    fig.update_xaxes(
+        gridcolor="#e3ddc4",
+        zeroline=False,
+        tickfont=dict(color="#000000"),
+        title_font=dict(color="#000000"),
+        linecolor="#000000",
+    )
+    fig.update_yaxes(
+        gridcolor="#e3ddc4",
+        zeroline=False,
+        tickfont=dict(color="#000000"),
+        title_font=dict(color="#000000"),
+        linecolor="#000000",
+    )
     return fig

@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 
+from utils.estilo import aplicar_estilo
 from utils.carregamento import (
     carregar_estatisticas,
     carregar_escolaridade,
@@ -19,6 +20,8 @@ from utils.graficos import (
 )
 
 st.set_page_config(page_title="Estatisticas - PNAD", layout="wide")
+
+aplicar_estilo()
 
 st.title("Estatisticas Interativas")
 st.caption("Explore as series temporais e analises por modulo.")
