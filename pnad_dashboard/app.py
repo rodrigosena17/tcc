@@ -24,5 +24,8 @@ st.markdown(
     - **Estatisticas**: modulos interativos com series temporais e analises.
     """
 )
+#Fazer alterações aqui
+#Usar como cabeçalho para o TCC com as informações da pesquisa e dos pesquisadores/orientador.
+
 
 st.info("Selecione uma pagina no menu lateral para comecar a explorar os dados.")

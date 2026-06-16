@@ -24,7 +24,7 @@ st.set_page_config(page_title="Estatisticas - PNAD", layout="wide")
 aplicar_estilo()
 
 st.title("Estatisticas Interativas")
-st.caption("Explore as series temporais e analises por modulo.")
+st.caption("🛈 Nessa seção é possível explorar as estatísticas trimestrais da PNAD Contínua de forma interativa, aplicando filtros e visualizando graficos personalizados.")
 
 df_est = carregar_estatisticas()
 df_esc = carregar_escolaridade()
@@ -97,7 +97,7 @@ if modulo == "Panorama Geral":
             formatar_numero(df_f["Ocupados_Ponderado"].mean()),
         )
 
-        c5, c6, c7, c8 = st.columns(4)
+        c5, c6, c7, c8= st.columns(4)
         c5.metric(
             "Taxa de Ocupacao",
             f"{df_f['Taxa_Ocupacao'].mean():.1f}%",
@@ -115,8 +115,26 @@ if modulo == "Panorama Geral":
             formatar_moeda(df_f["Renda_Media_Ponderada"].mean()),
         )
 
-        c9, _, _, _ = st.columns(4)
+        c9, c10, c11, c12 = st.columns(4)
         c9.metric(
+            "Carteira Assinada Ponderada",
+            formatar_numero(df_f["Carteira_Assinada_Ponderado"].mean()),
+        )
+        c10.metric(
+            "Servidor Publico Ponderado",
+            formatar_numero(df_f["Servidor_Publico_Ponderado"].mean()),
+        )
+        c11.metric(
+            "Conta Propria Ponderado",
+            formatar_numero(df_f["Conta_Propria_Ponderado"].mean()),
+        )
+        c12.metric(
+            "Empregadores Ponderado",
+            formatar_numero(df_f["Empregador_Ponderado"].mean()),
+        )
+
+        c13, _, _, _ = st.columns(4)
+        c13.metric(
             "Horas Medias/Semana",
             f"{df_f['Horas_Media_Semanal'].mean():.1f}",
         )

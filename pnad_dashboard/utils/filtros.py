@@ -55,10 +55,10 @@ def seletor_series(opcoes, chave, padrao=None):
     if padrao is not None and padrao in opcoes:
         indice = opcoes.index(padrao)
         
-    selecionadas = st.selectbox(
+    selecionada = st.selectbox(
         "Serie temporal",
         options=opcoes,
         index=indice,
         key=f"serie_{chave}",
     )
-    return selecionadas if selecionadas else opcoes
+    return [selecionada] 
