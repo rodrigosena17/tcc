@@ -99,11 +99,6 @@ def calcular_estatisticas(base_dir_organizados_csv: str,
             else None
         )
 
-        ocupados_ponderado = (
-            df_ocupados["V1028"].sum()
-            if "V1028" in df_ocupados.columns
-            else None
-        )
 
         df_horas = (
             df.groupby("V4039")["V403312"]
@@ -126,22 +121,47 @@ def calcular_estatisticas(base_dir_organizados_csv: str,
         )
 
         ocupados_total = len(df_ocupados)
+        ocupados_ponderado = (
+            df_ocupados["V1028"].sum()
+            if "V1028" in df_ocupados.columns
+            else None
+        )
         ocupados_renda_total = df_ocupados["V403312"].sum()
         ocupados_renda_media = df_ocupados["V403312"].mean()
 
         carteira_assinada_total = len(df_carteira_assinada)
+        carteira_assinada_ponderado = (
+            df_carteira_assinada["V1028"].sum()
+            if "V1028" in df_carteira_assinada.columns
+            else None
+        )
         carteira_assinada_renda_total = df_carteira_assinada["V403312"].sum() 
         carteira_assinada_renda_media = df_carteira_assinada["V403312"].mean() 
 
         servidor_publico_total = len(df_servidor_publico)
+        servidor_publico_ponderado = (
+            df_servidor_publico["V1028"].sum()
+            if "V1028" in df_servidor_publico.columns
+            else None
+        )
         servidor_publico_renda_total = df_servidor_publico["V403312"].sum() 
         servidor_publico_renda_media = df_servidor_publico["V403312"].mean()
     
         conta_propria_total = len(df_conta_propria)
+        conta_propria_ponderado = (
+            df_conta_propria["V1028"].sum()
+            if "V1028" in df_conta_propria.columns
+            else None
+        )
         conta_propria_renda_total = df_conta_propria["V403312"].sum()
         conta_propria_renda_media = df_conta_propria["V403312"].mean()
 
         empregador_total = len(df_empregador)
+        empregador_ponderado = (
+            df_empregador["V1028"].sum()
+            if "V1028" in df_empregador.columns
+            else None
+        )
         empregador_renda_total = df_empregador["V403312"].sum()
         empregador_renda_media = df_empregador["V403312"].mean()
 
@@ -180,6 +200,18 @@ def calcular_estatisticas(base_dir_organizados_csv: str,
             else None
         )
 
+        percentual_conta_propria = (
+            (df["V4012"] == 6).mean() * 100
+            if "V4012" in df.columns
+            else None
+        )
+
+        percentual_empregador = (
+            (df["V4012"] == 5).mean() * 100
+            if "V4012" in df.columns
+            else None
+        )
+
         horas_media = (
             df["V4039"].mean()
             if "V4039" in df.columns
@@ -197,15 +229,19 @@ def calcular_estatisticas(base_dir_organizados_csv: str,
             "Ocupados_Renda_Total": ocupados_renda_total,
             "Ocupados_Renda_Media": ocupados_renda_media,
             "Carteira_Assinada_Total": carteira_assinada_total,
+            "Carteira_Assinada_Ponderado": carteira_assinada_ponderado,
             "Carteira_Assinada_Renda_Total": carteira_assinada_renda_total,
             "Carteira_Assinada_Renda_Media": carteira_assinada_renda_media,
             "Servidor_Publico_Total": servidor_publico_total,
+            "Servidor_Publico_Ponderado": servidor_publico_ponderado,
             "Servidor_Publico_Renda_Total": servidor_publico_renda_total,
             "Servidor_Publico_Renda_Media": servidor_publico_renda_media,
             "Conta_Propria_Total": conta_propria_total,
+            "Conta_Propria_Ponderado": conta_propria_ponderado,
             "Conta_Propria_Renda_Total": conta_propria_renda_total,
             "Conta_Propria_Renda_Media": conta_propria_renda_media,
             "Empregador_Total": empregador_total,
+            "Empregador_Ponderado": empregador_ponderado,
             "Empregador_Renda_Total": empregador_renda_total,
             "Empregador_Renda_Media": empregador_renda_media,
             "Renda_Media": renda_media,
@@ -213,6 +249,8 @@ def calcular_estatisticas(base_dir_organizados_csv: str,
             "Renda_Media_Ponderada": renda_media_ponderada,
             "Percentual_Carteira_Assinada": percentual_carteira,
             "Percentual_Servidor_Publico": percentual_servidor,
+            "Percentual_Conta_Propria": percentual_conta_propria,
+            "Percentual_Empregador": percentual_empregador,
             "Horas_Media_Semanal": horas_media
         })
 

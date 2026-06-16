@@ -51,12 +51,14 @@ def filtro_trimestre_unico(df, ano, chave):
 
 
 def seletor_series(opcoes, chave, padrao=None):
-    if padrao is None:
-        padrao = opcoes
-    selecionadas = st.multiselect(
-        "Series temporais",
+    indice = 0
+    if padrao is not None and padrao in opcoes:
+        indice = opcoes.index(padrao)
+        
+    selecionadas = st.selectbox(
+        "Serie temporal",
         options=opcoes,
-        default=padrao,
-        key=f"series_{chave}",
+        index=indice,
+        key=f"serie_{chave}",
     )
     return selecionadas if selecionadas else opcoes

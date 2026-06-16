@@ -161,7 +161,7 @@ elif modulo == "Ocupados":
             f"({ano_min} a {ano_max})."
         )
 
-        c1, c2, c3 = st.columns(3)
+        c1, c2, c3, c4 = st.columns(4)
         c1.metric(
             "Ocupados Total",
             formatar_numero(df_f["Ocupados_total"].mean()),
@@ -175,11 +175,17 @@ elif modulo == "Ocupados":
             formatar_moeda(df_f["Ocupados_Renda_Media"].mean()),
         )
 
+        c4.metric(
+            "Ocupados Ponderado",
+            formatar_numero(df_f["Ocupados_Ponderado"].mean()),
+        )
+
         st.divider()
         opcoes = [
             "Ocupados_total",
             "Ocupados_Renda_Total",
             "Ocupados_Renda_Media",
+            "Ocupados_Ponderado",
         ]
         series = seletor_series(opcoes, "ocupados")
         fig = grafico_linha(df_f, "Periodo", series, "Series de Ocupados")
@@ -204,7 +210,7 @@ elif modulo == "Carteira Assinada":
             f"({ano_min} a {ano_max})."
         )
 
-        c1, c2, c3, c4 = st.columns(4)
+        c1, c2, c3, c4, c5 = st.columns(5)
         c1.metric(
             "Total",
             formatar_numero(df_f["Carteira_Assinada_Total"].mean()),
@@ -222,12 +228,18 @@ elif modulo == "Carteira Assinada":
             f"{df_f['Percentual_Carteira_Assinada'].mean():.1f}%",
         )
 
+        c5.metric(
+            "Ponderado",
+            formatar_numero(df_f["Carteira_Assinada_Ponderado"].mean()),
+        )
+
         st.divider()
         opcoes = [
             "Carteira_Assinada_Total",
             "Carteira_Assinada_Renda_Total",
             "Carteira_Assinada_Renda_Media",
             "Percentual_Carteira_Assinada",
+            "Carteira_Assinada_Ponderado"
         ]
         series = seletor_series(opcoes, "carteira")
         fig = grafico_linha(
@@ -255,7 +267,7 @@ elif modulo == "Servidor Publico":
             f"({ano_min} a {ano_max})."
         )
 
-        c1, c2, c3, c4 = st.columns(4)
+        c1, c2, c3, c4, c5 = st.columns(5)
         c1.metric(
             "Total",
             formatar_numero(df_f["Servidor_Publico_Total"].mean()),
@@ -273,12 +285,18 @@ elif modulo == "Servidor Publico":
             f"{df_f['Percentual_Servidor_Publico'].mean():.1f}%",
         )
 
+        c5.metric(
+            "Ponderado",
+            formatar_numero(df_f["Servidor_Publico_Ponderado"].mean()),
+        )
+
         st.divider()
         opcoes = [
             "Servidor_Publico_Total",
             "Servidor_Publico_Renda_Total",
             "Servidor_Publico_Renda_Media",
             "Percentual_Servidor_Publico",
+            "Servidor_Publico_Ponderado"
         ]
         series = seletor_series(opcoes, "servidor")
         fig = grafico_linha(
@@ -306,7 +324,7 @@ elif modulo == "Conta Propria":
             f"({ano_min} a {ano_max})."
         )
 
-        c1, c2, c3 = st.columns(3)
+        c1, c2, c3, c4, c5 = st.columns(5)
         c1.metric(
             "Total",
             formatar_numero(df_f["Conta_Propria_Total"].mean()),
@@ -320,11 +338,22 @@ elif modulo == "Conta Propria":
             formatar_moeda(df_f["Conta_Propria_Renda_Media"].mean()),
         )
 
+        c4.metric(
+            "Percentual",
+            formatar_moeda(df_f["Percentual_Conta_Propria"].mean()),
+        )
+        c5.metric(
+            "Ponderado",
+            formatar_numero(df_f["Conta_Propria_Ponderado"].mean()),
+        )
+
         st.divider()
         opcoes = [
             "Conta_Propria_Total",
             "Conta_Propria_Renda_Total",
             "Conta_Propria_Renda_Media",
+            "Percentual_Conta_Propria",
+            "Conta_Propria_Ponderado"
         ]
         series = seletor_series(opcoes, "contapropria")
         fig = grafico_linha(df_f, "Periodo", series, "Series de Conta Propria")
@@ -350,7 +379,7 @@ elif modulo == "Empregadores":
             f"({ano_min} a {ano_max})."
         )
 
-        c1, c2, c3 = st.columns(3)
+        c1, c2, c3, c4, c5 = st.columns(5)
         c1.metric(
             "Total",
             formatar_numero(df_f["Empregador_Total"].mean()),
@@ -364,11 +393,23 @@ elif modulo == "Empregadores":
             formatar_moeda(df_f["Empregador_Renda_Media"].mean()),
         )
 
+        c4.metric(
+            "Percentual",
+            formatar_moeda(df_f["Percentual_Empregador"].mean()),
+        )
+
+        c5.metric(
+            "Ponderado",
+            formatar_numero(df_f["Empregador_Ponderado"].mean()),
+        )   
+
         st.divider()
         opcoes = [
             "Empregador_Total",
             "Empregador_Renda_Total",
             "Empregador_Renda_Media",
+            "Percentual_Empregador",
+            "Empregador_Ponderado"
         ]
         series = seletor_series(opcoes, "empregadores")
         fig = grafico_linha(df_f, "Periodo", series, "Series de Empregadores")
@@ -476,7 +517,7 @@ elif modulo == "Horas Trabalhadas x Renda":
     if df_f.empty:
         st.warning("Nenhum dado para os filtros selecionados.")
     else:
-        st.subheader("Dispersao")
+        st.subheader("Análise através de um gráfico de dispersão")
         fig_disp = grafico_dispersao(
             df_f,
             x="Horas_Semanais",
