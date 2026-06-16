@@ -72,27 +72,53 @@ if modulo == "Panorama Geral":
     if df_f.empty:
         st.warning("Nenhum dado para os filtros selecionados.")
     else:
-        ultimo = df_f.iloc[-1]
+        ano_min = int(df_f["Ano"].min())
+        ano_max = int(df_f["Ano"].max())
+        st.caption(
+            f"Valores correspondem a media dos trimestres filtrados "
+            f"({ano_min} a {ano_max})."
+        )
 
         c1, c2, c3, c4 = st.columns(4)
-        c1.metric("Populacao Total", formatar_numero(ultimo["Total_Pessoas"]))
+        c1.metric(
+            "Populacao Total",
+            formatar_numero(df_f["Total_Pessoas"].mean()),
+        )
         c2.metric(
             "Populacao Ponderada",
-            formatar_numero(ultimo["Populacao_Ponderada"]),
+            formatar_numero(df_f["Populacao_Ponderada"].mean()),
         )
-        c3.metric("Ocupados", formatar_numero(ultimo["Ocupados_total"]))
-        c4.metric("Taxa de Ocupacao", f"{ultimo['Taxa_Ocupacao']:.1f}%")
+        c3.metric(
+            "Ocupados",
+            formatar_numero(df_f["Ocupados_total"].mean()),
+        )
+        c4.metric(
+            "Ocupados Ponderado",
+            formatar_numero(df_f["Ocupados_Ponderado"].mean()),
+        )
 
         c5, c6, c7, c8 = st.columns(4)
-        c5.metric("Renda Media", formatar_moeda(ultimo["Renda_Media"]))
-        c6.metric("Renda Mediana", formatar_moeda(ultimo["Renda_Mediana"]))
+        c5.metric(
+            "Taxa de Ocupacao",
+            f"{df_f['Taxa_Ocupacao'].mean():.1f}%",
+        )
+        c6.metric(
+            "Renda Media",
+            formatar_moeda(df_f["Renda_Media"].mean()),
+        )
         c7.metric(
-            "Renda Media Ponderada",
-            formatar_moeda(ultimo["Renda_Media_Ponderada"]),
+            "Renda Mediana",
+            formatar_moeda(df_f["Renda_Mediana"].mean()),
         )
         c8.metric(
+            "Renda Media Ponderada",
+            formatar_moeda(df_f["Renda_Media_Ponderada"].mean()),
+        )
+
+        c9, _, _, _ = st.columns(4)
+        c9.metric(
             "Horas Medias/Semana",
-            f"{ultimo['Horas_Media_Semanal']:.1f}",
+            f"{df_f['Horas_Media_Semanal'].mean():.1f}",
         )
 
         st.divider()
@@ -101,6 +127,7 @@ if modulo == "Panorama Geral":
             "Total_Pessoas",
             "Populacao_Ponderada",
             "Ocupados_total",
+            "Ocupados_Ponderado",
             "Taxa_Ocupacao",
             "Renda_Media",
             "Renda_Mediana",
@@ -127,14 +154,25 @@ elif modulo == "Ocupados":
     if df_f.empty:
         st.warning("Nenhum dado para os filtros selecionados.")
     else:
-        ultimo = df_f.iloc[-1]
+        ano_min = int(df_f["Ano"].min())
+        ano_max = int(df_f["Ano"].max())
+        st.caption(
+            f"Valores correspondem a media dos trimestres filtrados "
+            f"({ano_min} a {ano_max})."
+        )
+
         c1, c2, c3 = st.columns(3)
-        c1.metric("Ocupados Total", formatar_numero(ultimo["Ocupados_total"]))
+        c1.metric(
+            "Ocupados Total",
+            formatar_numero(df_f["Ocupados_total"].mean()),
+        )
         c2.metric(
-            "Renda Total", formatar_moeda(ultimo["Ocupados_Renda_Total"])
+            "Renda Total",
+            formatar_moeda(df_f["Ocupados_Renda_Total"].mean()),
         )
         c3.metric(
-            "Renda Media", formatar_moeda(ultimo["Ocupados_Renda_Media"])
+            "Renda Media",
+            formatar_moeda(df_f["Ocupados_Renda_Media"].mean()),
         )
 
         st.divider()
@@ -146,7 +184,6 @@ elif modulo == "Ocupados":
         series = seletor_series(opcoes, "ocupados")
         fig = grafico_linha(df_f, "Periodo", series, "Series de Ocupados")
         st.plotly_chart(fig, use_container_width=True)
-
 
 # MODULO 3 - CARTEIRA ASSINADA
 
@@ -160,21 +197,29 @@ elif modulo == "Carteira Assinada":
     if df_f.empty:
         st.warning("Nenhum dado para os filtros selecionados.")
     else:
-        ultimo = df_f.iloc[-1]
+        ano_min = int(df_f["Ano"].min())
+        ano_max = int(df_f["Ano"].max())
+        st.caption(
+            f"Valores correspondem a media dos trimestres filtrados "
+            f"({ano_min} a {ano_max})."
+        )
+
         c1, c2, c3, c4 = st.columns(4)
         c1.metric(
-            "Total", formatar_numero(ultimo["Carteira_Assinada_Total"])
+            "Total",
+            formatar_numero(df_f["Carteira_Assinada_Total"].mean()),
         )
         c2.metric(
             "Renda Total",
-            formatar_moeda(ultimo["Carteira_Assinada_Renda_Total"]),
+            formatar_moeda(df_f["Carteira_Assinada_Renda_Total"].mean()),
         )
         c3.metric(
             "Renda Media",
-            formatar_moeda(ultimo["Carteira_Assinada_Renda_Media"]),
+            formatar_moeda(df_f["Carteira_Assinada_Renda_Media"].mean()),
         )
         c4.metric(
-            "Percentual", f"{ultimo['Percentual_Carteira_Assinada']:.1f}%"
+            "Percentual",
+            f"{df_f['Percentual_Carteira_Assinada'].mean():.1f}%",
         )
 
         st.divider()
@@ -203,19 +248,29 @@ elif modulo == "Servidor Publico":
     if df_f.empty:
         st.warning("Nenhum dado para os filtros selecionados.")
     else:
-        ultimo = df_f.iloc[-1]
+        ano_min = int(df_f["Ano"].min())
+        ano_max = int(df_f["Ano"].max())
+        st.caption(
+            f"Valores correspondem a media dos trimestres filtrados "
+            f"({ano_min} a {ano_max})."
+        )
+
         c1, c2, c3, c4 = st.columns(4)
-        c1.metric("Total", formatar_numero(ultimo["Servidor_Publico_Total"]))
+        c1.metric(
+            "Total",
+            formatar_numero(df_f["Servidor_Publico_Total"].mean()),
+        )
         c2.metric(
             "Renda Total",
-            formatar_moeda(ultimo["Servidor_Publico_Renda_Total"]),
+            formatar_moeda(df_f["Servidor_Publico_Renda_Total"].mean()),
         )
         c3.metric(
             "Renda Media",
-            formatar_moeda(ultimo["Servidor_Publico_Renda_Media"]),
+            formatar_moeda(df_f["Servidor_Publico_Renda_Media"].mean()),
         )
         c4.metric(
-            "Percentual", f"{ultimo['Percentual_Servidor_Publico']:.1f}%"
+            "Percentual",
+            f"{df_f['Percentual_Servidor_Publico'].mean():.1f}%",
         )
 
         st.divider()
@@ -244,16 +299,25 @@ elif modulo == "Conta Propria":
     if df_f.empty:
         st.warning("Nenhum dado para os filtros selecionados.")
     else:
-        ultimo = df_f.iloc[-1]
+        ano_min = int(df_f["Ano"].min())
+        ano_max = int(df_f["Ano"].max())
+        st.caption(
+            f"Valores correspondem a media dos trimestres filtrados "
+            f"({ano_min} a {ano_max})."
+        )
+
         c1, c2, c3 = st.columns(3)
-        c1.metric("Total", formatar_numero(ultimo["Conta_Propria_Total"]))
+        c1.metric(
+            "Total",
+            formatar_numero(df_f["Conta_Propria_Total"].mean()),
+        )
         c2.metric(
             "Renda Total",
-            formatar_moeda(ultimo["Conta_Propria_Renda_Total"]),
+            formatar_moeda(df_f["Conta_Propria_Renda_Total"].mean()),
         )
         c3.metric(
             "Renda Media",
-            formatar_moeda(ultimo["Conta_Propria_Renda_Media"]),
+            formatar_moeda(df_f["Conta_Propria_Renda_Media"].mean()),
         )
 
         st.divider()
@@ -279,14 +343,25 @@ elif modulo == "Empregadores":
     if df_f.empty:
         st.warning("Nenhum dado para os filtros selecionados.")
     else:
-        ultimo = df_f.iloc[-1]
+        ano_min = int(df_f["Ano"].min())
+        ano_max = int(df_f["Ano"].max())
+        st.caption(
+            f"Valores correspondem a media dos trimestres filtrados "
+            f"({ano_min} a {ano_max})."
+        )
+
         c1, c2, c3 = st.columns(3)
-        c1.metric("Total", formatar_numero(ultimo["Empregador_Total"]))
+        c1.metric(
+            "Total",
+            formatar_numero(df_f["Empregador_Total"].mean()),
+        )
         c2.metric(
-            "Renda Total", formatar_moeda(ultimo["Empregador_Renda_Total"])
+            "Renda Total",
+            formatar_moeda(df_f["Empregador_Renda_Total"].mean()),
         )
         c3.metric(
-            "Renda Media", formatar_moeda(ultimo["Empregador_Renda_Media"])
+            "Renda Media",
+            formatar_moeda(df_f["Empregador_Renda_Media"].mean()),
         )
 
         st.divider()

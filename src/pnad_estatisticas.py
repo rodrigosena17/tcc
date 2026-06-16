@@ -99,6 +99,12 @@ def calcular_estatisticas(base_dir_organizados_csv: str,
             else None
         )
 
+        ocupados_ponderado = (
+            df_ocupados["V1028"].sum()
+            if "V1028" in df_ocupados.columns
+            else None
+        )
+
         df_horas = (
             df.groupby("V4039")["V403312"]
             .sum()
@@ -186,6 +192,7 @@ def calcular_estatisticas(base_dir_organizados_csv: str,
             "Total_Pessoas": total_pessoas,
             "Populacao_Ponderada": populacao_ponderada,
             "Ocupados_total": ocupados_total,
+            "Ocupados_Ponderado": ocupados_ponderado,
             "Taxa_Ocupacao": taxa_ocupacao,
             "Ocupados_Renda_Total": ocupados_renda_total,
             "Ocupados_Renda_Media": ocupados_renda_media,
