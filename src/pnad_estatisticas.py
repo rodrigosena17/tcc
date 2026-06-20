@@ -28,6 +28,18 @@ def calcular_estatisticas(base_dir_organizados_csv: str,
 
     renda_horas_semanais = []
 
+    idade_renda = []
+
+    tempo_trabalho_renda = []
+    
+    escolaridade_ocupacao = []
+    
+    escolaridade_carteira = []
+    
+    sexo_renda_escolaridade = []
+    
+    cor_raca_renda_escolaridade = []
+
     for root, _, files in os.walk(base_dir_organizados_csv):
         for file in files:
             if file.endswith("_organizado.csv"):
@@ -104,6 +116,156 @@ def calcular_estatisticas(base_dir_organizados_csv: str,
             df.groupby("V4039")["V403312"]
             .sum()
             .reset_index()
+        )
+
+        # Idade x renda
+        
+        df_idade = (
+            df.groupby("V2009")["V403312"]
+            .mean()
+            .reset_index()
+        )
+        
+        df_idade["Ano"] = ano
+        df_idade["Trimestre"] = trimestre
+        
+        df_idade = df_idade.rename(
+            columns={
+                "V2009": "Idade",
+                "V403312": "Renda_Media"
+            }
+        )
+        
+        idade_renda.append(df_idade)
+        
+        # Tempo de trabalho x renda
+        
+        df_tempo = (
+            df.groupby("V4040")["V403312"]
+            .mean()
+            .reset_index()
+        )
+        
+        df_tempo["Ano"] = ano
+        df_tempo["Trimestre"] = trimestre
+        
+        df_tempo = df_tempo.rename(
+            columns={
+                "V4040": "Tempo_Trabalho",
+                "V403312": "Renda_Media"
+            }
+        )
+        
+        tempo_trabalho_renda.append(
+            df_tempo
+        )
+        
+        
+        # Escolaridade x ocupação
+        
+        df_escolaridade_ocupacao = (
+            df.groupby("V3009A")["V4001"]
+            .apply(
+                lambda x:
+                (x == 1).mean() * 100
+            )
+            .reset_index()
+        )
+        
+        df_escolaridade_ocupacao["Ano"] = ano
+        df_escolaridade_ocupacao["Trimestre"] = trimestre
+        
+        df_escolaridade_ocupacao = (
+            df_escolaridade_ocupacao.rename(
+                columns={
+                    "V3009A": "Escolaridade",
+                    "V4001": "Percentual_Ocupados"
+                }
+            )
+        )
+        
+        escolaridade_ocupacao.append(
+            df_escolaridade_ocupacao
+        )
+        
+        
+        # Escolaridade x carteira assinada
+        
+        df_escolaridade_carteira = (
+            df.groupby("V3009A")["V4029"]
+            .apply(
+                lambda x:
+                (x == 1).mean() * 100
+            )
+            .reset_index()
+        )
+        
+        df_escolaridade_carteira["Ano"] = ano
+        df_escolaridade_carteira["Trimestre"] = trimestre
+        
+        df_escolaridade_carteira = (
+            df_escolaridade_carteira.rename(
+                columns={
+                    "V3009A": "Escolaridade",
+                    "V4029": "Percentual_Carteira"
+                }
+            )
+        )
+        
+        escolaridade_carteira.append(
+            df_escolaridade_carteira
+        )
+        
+        
+        # Sexo x escolaridade x renda
+        
+        df_sexo = (
+            df.groupby(
+                ["V2007", "V3009A"]
+            )["V403312"]
+            .mean()
+            .reset_index()
+        )
+        
+        df_sexo["Ano"] = ano
+        df_sexo["Trimestre"] = trimestre
+        
+        df_sexo = df_sexo.rename(
+            columns={
+                "V2007": "Sexo",
+                "V3009A": "Escolaridade",
+                "V403312": "Renda_Media"
+            }
+        )
+        
+        sexo_renda_escolaridade.append(
+            df_sexo
+        )
+        
+        
+        # Cor/raça x escolaridade x renda
+        
+        df_raca = (
+            df.groupby(
+                ["V2010", "V3009A"]
+            )["V403312"]
+            .mean()
+            .reset_index()
+        )
+        
+        df_raca["Ano"] = ano
+        df_raca["Trimestre"] = trimestre
+        
+        df_raca = df_raca.rename(
+            columns={
+                "V2010": "Cor_Raca",
+                "V3009A": "Escolaridade",
+                "V403312": "Renda_Media"
+            }
+        )
+        
+        cor_raca_renda_escolaridade.append(
+            df_raca
         )
 
         df_horas["Ano"] = ano
@@ -274,6 +436,36 @@ def calcular_estatisticas(base_dir_organizados_csv: str,
         ignore_index=True
     )
 
+    idade_renda_df = pd.concat(
+        idade_renda,
+        ignore_index=True
+    )
+    
+    tempo_trabalho_renda_df = pd.concat(
+        tempo_trabalho_renda,
+        ignore_index=True
+    )
+    
+    escolaridade_ocupacao_df = pd.concat(
+        escolaridade_ocupacao,
+        ignore_index=True
+    )
+    
+    escolaridade_carteira_df = pd.concat(
+        escolaridade_carteira,
+        ignore_index=True
+    )
+    
+    sexo_renda_escolaridade_df = pd.concat(
+        sexo_renda_escolaridade,
+        ignore_index=True
+    )
+    
+    cor_raca_renda_escolaridade_df = pd.concat(
+        cor_raca_renda_escolaridade,
+        ignore_index=True
+    )
+
     for ano in resultados_df["Ano"].unique():
 
         df_ano = resultados_df[
@@ -303,6 +495,71 @@ def calcular_estatisticas(base_dir_organizados_csv: str,
         caminho_horas_semanais = os.path.join(
             pasta_resultados,
             f"{ano}_renda_horas_semanais.csv"
+        )
+
+        idade_renda_df[
+            idade_renda_df["Ano"] == ano
+        ].to_csv(
+            os.path.join(
+                pasta_resultados,
+                f"{ano}_idade_renda.csv"
+            ),
+            index=False
+        )
+        
+        
+        tempo_trabalho_renda_df[
+            tempo_trabalho_renda_df["Ano"] == ano
+        ].to_csv(
+            os.path.join(
+                pasta_resultados,
+                f"{ano}_tempo_trabalho_renda.csv"
+            ),
+            index=False
+        )
+        
+        
+        escolaridade_ocupacao_df[
+            escolaridade_ocupacao_df["Ano"] == ano
+        ].to_csv(
+            os.path.join(
+                pasta_resultados,
+                f"{ano}_escolaridade_ocupacao.csv"
+            ),
+            index=False
+        )
+        
+        
+        escolaridade_carteira_df[
+            escolaridade_carteira_df["Ano"] == ano
+        ].to_csv(
+            os.path.join(
+                pasta_resultados,
+                f"{ano}_escolaridade_carteira.csv"
+            ),
+            index=False
+        )
+        
+        
+        sexo_renda_escolaridade_df[
+            sexo_renda_escolaridade_df["Ano"] == ano
+        ].to_csv(
+            os.path.join(
+                pasta_resultados,
+                f"{ano}_sexo_renda_escolaridade.csv"
+            ),
+            index=False
+        )
+        
+        
+        cor_raca_renda_escolaridade_df[
+            cor_raca_renda_escolaridade_df["Ano"] == ano
+        ].to_csv(
+            os.path.join(
+                pasta_resultados,
+                f"{ano}_cor_raca_renda_escolaridade.csv"
+            ),
+            index=False
         )
 
         renda_horas_semanais_df[renda_horas_semanais_df["Ano"] == ano].to_csv(
