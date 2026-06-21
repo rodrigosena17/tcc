@@ -340,7 +340,7 @@ elif modulo == "Escolaridade x Renda":
                 df_f,
                 x="Escolaridade_Desc",
                 y="Renda_Total",
-                titulo="Renda Total por Escolaridade",
+                titulo="Renda Total (R$) por Escolaridade",
                 cor="Trimestre",
             )
             st.plotly_chart(fig_v, width='stretch')
@@ -356,7 +356,7 @@ elif modulo == "Escolaridade x Renda":
                 agg_ord,
                 x="Escolaridade_Desc",
                 y="Renda_Total",
-                titulo="Renda Total por Escolaridade",
+                titulo="Renda Total (R$) por Escolaridade",
                 orientacao="h",
             )
             st.plotly_chart(fig_h, width='stretch')
@@ -396,7 +396,7 @@ elif modulo == "Horas Trabalhadas x Renda":
                 df_f,
                 "Horas_Semanais",
                 ["Renda_Total"],
-                "Renda Total (linha)",
+                "Renda Total (R$)",
                 rotulo_y="Renda Total",
             )
         fig_linha.update_layout(xaxis_title="Horas Semanais")
@@ -446,7 +446,7 @@ elif modulo == "Idade x Renda":
                 df_f.sort_values("Idade"),
                 "Idade",
                 ["Renda_Media"],
-                "Renda Média por Idade",
+                "Renda Média (R$) por Idade",
                 rotulo_y="Renda Média Mensal",
             )
 
@@ -457,7 +457,7 @@ elif modulo == "Idade x Renda":
 
 
 elif modulo == "Tempo de Trabalho x Renda":
-    st.header("Tempo de Trabalho x Renda")
+    st.header("Tempo de Trabalho x Renda (R$)")
     st.sidebar.subheader("Filtros")
 
     ano, tris_sel = filtrar_ano_tri(df_tempo, "tempo")
@@ -474,7 +474,7 @@ elif modulo == "Tempo de Trabalho x Renda":
                 df_f,
                 x="Tempo_Trabalho_Desc",
                 y="Renda_Media",
-                titulo="Renda Média por Tempo de Trabalho",
+                titulo="Renda Média (R$) por Tempo de Trabalho",
                 cor="Trimestre",
             )
         else:
@@ -482,7 +482,7 @@ elif modulo == "Tempo de Trabalho x Renda":
                 df_f,
                 x="Tempo_Trabalho_Desc",
                 y="Renda_Media",
-                titulo="Renda Média por Tempo de Trabalho",
+                titulo="Renda Média (R$) por Tempo de Trabalho",
             )
         fig.update_layout(xaxis_title="Tempo de Trabalho")
         st.plotly_chart(fig, width='stretch')
@@ -603,7 +603,7 @@ elif modulo == "Sexo x Renda x Escolaridade":
                 df_f,
                 x="Escolaridade_Desc",
                 y="Renda_Media",
-                titulo="Renda Média por Sexo e Escolaridade",
+                titulo="Renda Média (R$) por Sexo e Escolaridade",
                 cor="Serie",
             )
         else:
@@ -617,7 +617,7 @@ elif modulo == "Sexo x Renda x Escolaridade":
                 agg,
                 x="Escolaridade_Desc",
                 y="Renda_Media",
-                titulo="Renda Média por Sexo e Escolaridade",
+                titulo="Renda Média (R$) por Sexo e Escolaridade",
                 cor="Sexo_Desc",
             )
 
@@ -659,7 +659,7 @@ elif modulo == "Cor/Raca x Escolaridade x Renda":
                 df_f,
                 x="Escolaridade_Desc",
                 y="Renda_Media",
-                titulo="Renda Média por Cor/Raça e Escolaridade",
+                titulo="Renda Média (R$) por Cor/Raça e Escolaridade",
                 cor="Serie",
             )
         else:
@@ -675,7 +675,7 @@ elif modulo == "Cor/Raca x Escolaridade x Renda":
                 agg.sort_values("Renda_Media"),
                 x="Escolaridade_Desc",
                 y="Renda_Media",
-                titulo="Renda Média por Cor/Raça e Escolaridade",
+                titulo="Renda Média (R$) por Cor/Raça e Escolaridade",
                 cor="Cor_Raca_Desc",
                 orientacao="h",
             )
