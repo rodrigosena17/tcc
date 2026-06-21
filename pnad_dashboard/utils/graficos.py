@@ -105,7 +105,11 @@ def grafico_barras(df, x, y, titulo, cor=None, orientacao="v"):
         x_title = x.replace("_", " ")
         y_title = y.replace("_", " ")
 
-    fig.update_traces(marker_line_width=0)
+    fig.update_traces(
+        marker_line_width=0,
+        texttemplate='%{y:.2f}',
+        textposition='outside'                 
+    )
 
     fig.update_layout(
         title=titulo,
