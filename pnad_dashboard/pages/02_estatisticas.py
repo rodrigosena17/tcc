@@ -162,7 +162,7 @@ if modulo == "Panorama Geral":
             "Renda_Media_Ponderada",
             "Horas_Media_Semanal",
         ]
-        series = seletor_series(opcoes, "panorama", padrao=opcoes[:4])
+        series = seletor_series(opcoes, "panorama", padrao="_empilhada")
 
         fig = grafico_linha(df_f, "Periodo", series, "Evolucao das Series Selecionadas")
         st.plotly_chart(fig, use_container_width=True)

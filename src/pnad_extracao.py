@@ -333,6 +333,76 @@ if __name__ == "__main__":
         "_renda_horas_semanais.csv",
         caminho_empilhado_horas
     )
+    caminho_empilhado_idade = os.path.join(
+        "data",
+        "idade_renda_empilhada.csv"
+    )
+
+    empilhar_csvs(
+        pasta_resultados_est,
+        "_idade_renda.csv",
+        caminho_empilhado_idade
+    )
+
+
+    caminho_empilhado_tempo = os.path.join(
+        "data",
+        "tempo_trabalho_renda_empilhada.csv"
+    )
+
+    empilhar_csvs(
+        pasta_resultados_est,
+        "_tempo_trabalho_renda.csv",
+        caminho_empilhado_tempo
+    )
+
+
+    caminho_empilhado_ocupacao = os.path.join(
+        "data",
+        "escolaridade_ocupacao_empilhada.csv"
+    )
+
+    empilhar_csvs(
+        pasta_resultados_est,
+        "_escolaridade_ocupacao.csv",
+        caminho_empilhado_ocupacao
+    )
+
+
+    caminho_empilhado_carteira = os.path.join(
+        "data",
+        "escolaridade_carteira_empilhada.csv"
+    )
+
+    empilhar_csvs(
+        pasta_resultados_est,
+        "_escolaridade_carteira.csv",
+        caminho_empilhado_carteira
+    )
+
+
+    caminho_empilhado_sexo = os.path.join(
+        "data",
+        "sexo_renda_escolaridade_empilhada.csv"
+    )
+
+    empilhar_csvs(
+        pasta_resultados_est,
+        "_sexo_renda_escolaridade.csv",
+        caminho_empilhado_sexo
+    )
+
+
+    caminho_empilhado_raca = os.path.join(
+        "data",
+        "cor_raca_renda_escolaridade_empilhada.csv"
+    )
+
+    empilhar_csvs(
+        pasta_resultados_est,
+        "_cor_raca_renda_escolaridade.csv",
+        caminho_empilhado_raca
+    )
 
     for chave, caminho in resumo.get('por_ano', {}).items():
 
