@@ -392,7 +392,6 @@ elif modulo == "Horas Trabalhadas x Renda":
     if df_f.empty:
         st.warning("Nenhum dado para os filtros selecionados.")
     else:
-        st.subheader("Análise através de um gráfico de linha")
         fig_linha = grafico_linha(
                 df_f,
                 "Horas_Semanais",
