@@ -6,6 +6,12 @@ from utils.carregamento import (
     carregar_estatisticas,
     carregar_escolaridade,
     carregar_horas,
+    carregar_idade_renda,
+    carregar_tempo_trabalho_renda,
+    carregar_escolaridade_ocupacao,
+    carregar_escolaridade_carteira,
+    carregar_sexo_renda_escolaridade,
+    carregar_cor_raca_renda_escolaridade,
 )
 from utils.filtros import (
     filtro_anos_trimestres,
@@ -24,11 +30,21 @@ st.set_page_config(page_title="Estatisticas - PNAD", layout="wide")
 aplicar_estilo()
 
 st.title("Estatisticas Interativas")
-st.caption("🛈 Nessa seção é possível explorar as estatísticas trimestrais da PNAD Contínua de forma interativa, aplicando filtros e visualizando graficos personalizados.")
+st.caption(
+    "🛈 Nessa seção é possível explorar as estatísticas trimestrais da PNAD Contínua "
+    "de forma interativa, aplicando filtros e visualizando gráficos personalizados."
+)
 
 df_est = carregar_estatisticas()
 df_esc = carregar_escolaridade()
 df_hor = carregar_horas()
+
+df_idade = carregar_idade_renda()
+df_tempo = carregar_tempo_trabalho_renda()
+df_esc_ocup = carregar_escolaridade_ocupacao()
+df_esc_cart = carregar_escolaridade_carteira()
+df_sexo_esc = carregar_sexo_renda_escolaridade()
+df_raca_esc = carregar_cor_raca_renda_escolaridade()
 
 modulos = [
     "Panorama Geral",
@@ -39,6 +55,12 @@ modulos = [
     "Empregadores",
     "Escolaridade x Renda",
     "Horas Trabalhadas x Renda",
+    "Idade x Renda",
+    "Tempo de Trabalho x Renda",
+    "Escolaridade x Ocupacao",
+    "Escolaridade x Carteira Assinada",
+    "Sexo x Renda x Escolaridade",
+    "Cor/Raca x Escolaridade x Renda",
 ]
 
 modulo = st.sidebar.radio("Modulos", modulos)
@@ -61,7 +83,34 @@ def formatar_moeda(valor):
         return "-"
 
 
-# MODULO 1 - PANORAMA GERAL
+def filtrar_ano_tri(df, prefixo):
+    with st.sidebar:
+        ano = filtro_ano_unico(df, prefixo)
+        multi = st.checkbox(
+            "Comparar vários trimestres",
+            value=False,
+            key=f"{prefixo}_multi",
+        )
+
+        tris_disp = sorted(df[df["Ano"] == ano]["Trimestre"].unique())
+
+        if multi:
+            tris_sel = st.multiselect(
+                "Trimestres",
+                options=tris_disp,
+                default=tris_disp,
+                key=f"{prefixo}_tris",
+            )
+            if not tris_sel:
+                tris_sel = tris_disp
+        else:
+            tri = filtro_trimestre_unico(df, ano, prefixo)
+            tris_sel = [tri]
+
+    return ano, tris_sel
+
+
+
 if modulo == "Panorama Geral":
     st.header("Panorama Geral")
     st.sidebar.subheader("Filtros")
@@ -75,69 +124,30 @@ if modulo == "Panorama Geral":
         ano_min = int(df_f["Ano"].min())
         ano_max = int(df_f["Ano"].max())
         st.caption(
-            f"Valores correspondem a media dos trimestres filtrados "
+            f"Valores correspondem à média dos trimestres filtrados "
             f"({ano_min} a {ano_max})."
         )
 
         c1, c2, c3, c4 = st.columns(4)
-        c1.metric(
-            "Populacao Total",
-            formatar_numero(df_f["Total_Pessoas"].mean()),
-        )
-        c2.metric(
-            "Populacao Ponderada",
-            formatar_numero(df_f["Populacao_Ponderada"].mean()),
-        )
-        c3.metric(
-            "Ocupados",
-            formatar_numero(df_f["Ocupados_total"].mean()),
-        )
-        c4.metric(
-            "Ocupados Ponderado",
-            formatar_numero(df_f["Ocupados_Ponderado"].mean()),
-        )
+        c1.metric("Populacao Total", formatar_numero(df_f["Total_Pessoas"].mean()))
+        c2.metric("Populacao Ponderada", formatar_numero(df_f["Populacao_Ponderada"].mean()))
+        c3.metric("Ocupados", formatar_numero(df_f["Ocupados_total"].mean()))
+        c4.metric("Ocupados Ponderado", formatar_numero(df_f["Ocupados_Ponderado"].mean()))
 
-        c5, c6, c7, c8= st.columns(4)
-        c5.metric(
-            "Taxa de Ocupacao",
-            f"{df_f['Taxa_Ocupacao'].mean():.1f}%",
-        )
-        c6.metric(
-            "Renda Media",
-            formatar_moeda(df_f["Renda_Media"].mean()),
-        )
-        c7.metric(
-            "Renda Mediana",
-            formatar_moeda(df_f["Renda_Mediana"].mean()),
-        )
-        c8.metric(
-            "Renda Media Ponderada",
-            formatar_moeda(df_f["Renda_Media_Ponderada"].mean()),
-        )
+        c5, c6, c7, c8 = st.columns(4)
+        c5.metric("Taxa de Ocupacao", f"{df_f['Taxa_Ocupacao'].mean():.1f}%")
+        c6.metric("Renda Media", formatar_moeda(df_f["Renda_Media"].mean()))
+        c7.metric("Renda Mediana", formatar_moeda(df_f["Renda_Mediana"].mean()))
+        c8.metric("Renda Media Ponderada", formatar_moeda(df_f["Renda_Media_Ponderada"].mean()))
 
         c9, c10, c11, c12 = st.columns(4)
-        c9.metric(
-            "Carteira Assinada Ponderada",
-            formatar_numero(df_f["Carteira_Assinada_Ponderado"].mean()),
-        )
-        c10.metric(
-            "Servidor Publico Ponderado",
-            formatar_numero(df_f["Servidor_Publico_Ponderado"].mean()),
-        )
-        c11.metric(
-            "Conta Propria Ponderado",
-            formatar_numero(df_f["Conta_Propria_Ponderado"].mean()),
-        )
-        c12.metric(
-            "Empregadores Ponderado",
-            formatar_numero(df_f["Empregador_Ponderado"].mean()),
-        )
+        c9.metric("Carteira Assinada Ponderada", formatar_numero(df_f["Carteira_Assinada_Ponderado"].mean()))
+        c10.metric("Servidor Publico Ponderado", formatar_numero(df_f["Servidor_Publico_Ponderado"].mean()))
+        c11.metric("Conta Propria Ponderado", formatar_numero(df_f["Conta_Propria_Ponderado"].mean()))
+        c12.metric("Empregadores Ponderado", formatar_numero(df_f["Empregador_Ponderado"].mean()))
 
         c13, _, _, _ = st.columns(4)
-        c13.metric(
-            "Horas Medias/Semana",
-            f"{df_f['Horas_Media_Semanal'].mean():.1f}",
-        )
+        c13.metric("Horas Medias/Semana", f"{df_f['Horas_Media_Semanal'].mean():.1f}")
 
         st.divider()
 
@@ -154,13 +164,9 @@ if modulo == "Panorama Geral":
         ]
         series = seletor_series(opcoes, "panorama", padrao=opcoes[:4])
 
-        fig = grafico_linha(
-            df_f, "Periodo", series, "Evolucao das Series Selecionadas"
-        )
+        fig = grafico_linha(df_f, "Periodo", series, "Evolucao das Series Selecionadas")
         st.plotly_chart(fig, use_container_width=True)
 
-
-# MODULO 2 - OCUPADOS
 
 elif modulo == "Ocupados":
     st.header("Ocupados")
@@ -172,33 +178,14 @@ elif modulo == "Ocupados":
     if df_f.empty:
         st.warning("Nenhum dado para os filtros selecionados.")
     else:
-        ano_min = int(df_f["Ano"].min())
-        ano_max = int(df_f["Ano"].max())
-        st.caption(
-            f"Valores correspondem a media dos trimestres filtrados "
-            f"({ano_min} a {ano_max})."
-        )
-
         c1, c2, c3, c4 = st.columns(4)
-        c1.metric(
-            "Ocupados Total",
-            formatar_numero(df_f["Ocupados_total"].mean()),
-        )
-        c2.metric(
-            "Renda Total",
-            formatar_moeda(df_f["Ocupados_Renda_Total"].mean()),
-        )
-        c3.metric(
-            "Renda Media",
-            formatar_moeda(df_f["Ocupados_Renda_Media"].mean()),
-        )
-
-        c4.metric(
-            "Ocupados Ponderado",
-            formatar_numero(df_f["Ocupados_Ponderado"].mean()),
-        )
+        c1.metric("Ocupados Total", formatar_numero(df_f["Ocupados_total"].mean()))
+        c2.metric("Renda Total", formatar_moeda(df_f["Ocupados_Renda_Total"].mean()))
+        c3.metric("Renda Media", formatar_moeda(df_f["Ocupados_Renda_Media"].mean()))
+        c4.metric("Ocupados Ponderado", formatar_numero(df_f["Ocupados_Ponderado"].mean()))
 
         st.divider()
+
         opcoes = [
             "Ocupados_total",
             "Ocupados_Renda_Total",
@@ -209,7 +196,6 @@ elif modulo == "Ocupados":
         fig = grafico_linha(df_f, "Periodo", series, "Series de Ocupados")
         st.plotly_chart(fig, use_container_width=True)
 
-# MODULO 3 - CARTEIRA ASSINADA
 
 elif modulo == "Carteira Assinada":
     st.header("Carteira Assinada")
@@ -221,52 +207,26 @@ elif modulo == "Carteira Assinada":
     if df_f.empty:
         st.warning("Nenhum dado para os filtros selecionados.")
     else:
-        ano_min = int(df_f["Ano"].min())
-        ano_max = int(df_f["Ano"].max())
-        st.caption(
-            f"Valores correspondem a media dos trimestres filtrados "
-            f"({ano_min} a {ano_max})."
-        )
-
         c1, c2, c3, c4, c5 = st.columns(5)
-        c1.metric(
-            "Total",
-            formatar_numero(df_f["Carteira_Assinada_Total"].mean()),
-        )
-        c2.metric(
-            "Renda Total",
-            formatar_moeda(df_f["Carteira_Assinada_Renda_Total"].mean()),
-        )
-        c3.metric(
-            "Renda Media",
-            formatar_moeda(df_f["Carteira_Assinada_Renda_Media"].mean()),
-        )
-        c4.metric(
-            "Percentual",
-            f"{df_f['Percentual_Carteira_Assinada'].mean():.1f}%",
-        )
-
-        c5.metric(
-            "Ponderado",
-            formatar_numero(df_f["Carteira_Assinada_Ponderado"].mean()),
-        )
+        c1.metric("Total", formatar_numero(df_f["Carteira_Assinada_Total"].mean()))
+        c2.metric("Renda Total", formatar_moeda(df_f["Carteira_Assinada_Renda_Total"].mean()))
+        c3.metric("Renda Media", formatar_moeda(df_f["Carteira_Assinada_Renda_Media"].mean()))
+        c4.metric("Percentual", f"{df_f['Percentual_Carteira_Assinada'].mean():.1f}%")
+        c5.metric("Ponderado", formatar_numero(df_f["Carteira_Assinada_Ponderado"].mean()))
 
         st.divider()
+
         opcoes = [
             "Carteira_Assinada_Total",
             "Carteira_Assinada_Renda_Total",
             "Carteira_Assinada_Renda_Media",
             "Percentual_Carteira_Assinada",
-            "Carteira_Assinada_Ponderado"
+            "Carteira_Assinada_Ponderado",
         ]
         series = seletor_series(opcoes, "carteira")
-        fig = grafico_linha(
-            df_f, "Periodo", series, "Series de Carteira Assinada"
-        )
+        fig = grafico_linha(df_f, "Periodo", series, "Series de Carteira Assinada")
         st.plotly_chart(fig, use_container_width=True)
 
-
-# MODULO 4 - SERVIDOR PUBLICO
 
 elif modulo == "Servidor Publico":
     st.header("Servidor Publico")
@@ -278,52 +238,26 @@ elif modulo == "Servidor Publico":
     if df_f.empty:
         st.warning("Nenhum dado para os filtros selecionados.")
     else:
-        ano_min = int(df_f["Ano"].min())
-        ano_max = int(df_f["Ano"].max())
-        st.caption(
-            f"Valores correspondem a media dos trimestres filtrados "
-            f"({ano_min} a {ano_max})."
-        )
-
         c1, c2, c3, c4, c5 = st.columns(5)
-        c1.metric(
-            "Total",
-            formatar_numero(df_f["Servidor_Publico_Total"].mean()),
-        )
-        c2.metric(
-            "Renda Total",
-            formatar_moeda(df_f["Servidor_Publico_Renda_Total"].mean()),
-        )
-        c3.metric(
-            "Renda Media",
-            formatar_moeda(df_f["Servidor_Publico_Renda_Media"].mean()),
-        )
-        c4.metric(
-            "Percentual",
-            f"{df_f['Percentual_Servidor_Publico'].mean():.1f}%",
-        )
-
-        c5.metric(
-            "Ponderado",
-            formatar_numero(df_f["Servidor_Publico_Ponderado"].mean()),
-        )
+        c1.metric("Total", formatar_numero(df_f["Servidor_Publico_Total"].mean()))
+        c2.metric("Renda Total", formatar_moeda(df_f["Servidor_Publico_Renda_Total"].mean()))
+        c3.metric("Renda Media", formatar_moeda(df_f["Servidor_Publico_Renda_Media"].mean()))
+        c4.metric("Percentual", f"{df_f['Percentual_Servidor_Publico'].mean():.1f}%")
+        c5.metric("Ponderado", formatar_numero(df_f["Servidor_Publico_Ponderado"].mean()))
 
         st.divider()
+
         opcoes = [
             "Servidor_Publico_Total",
             "Servidor_Publico_Renda_Total",
             "Servidor_Publico_Renda_Media",
             "Percentual_Servidor_Publico",
-            "Servidor_Publico_Ponderado"
+            "Servidor_Publico_Ponderado",
         ]
         series = seletor_series(opcoes, "servidor")
-        fig = grafico_linha(
-            df_f, "Periodo", series, "Series de Servidor Publico"
-        )
+        fig = grafico_linha(df_f, "Periodo", series, "Series de Servidor Publico")
         st.plotly_chart(fig, use_container_width=True)
 
-
-# MODULO 5 - CONTA PROPRIA
 
 elif modulo == "Conta Propria":
     st.header("Conta Propria")
@@ -335,50 +269,26 @@ elif modulo == "Conta Propria":
     if df_f.empty:
         st.warning("Nenhum dado para os filtros selecionados.")
     else:
-        ano_min = int(df_f["Ano"].min())
-        ano_max = int(df_f["Ano"].max())
-        st.caption(
-            f"Valores correspondem a media dos trimestres filtrados "
-            f"({ano_min} a {ano_max})."
-        )
-
         c1, c2, c3, c4, c5 = st.columns(5)
-        c1.metric(
-            "Total",
-            formatar_numero(df_f["Conta_Propria_Total"].mean()),
-        )
-        c2.metric(
-            "Renda Total",
-            formatar_moeda(df_f["Conta_Propria_Renda_Total"].mean()),
-        )
-        c3.metric(
-            "Renda Media",
-            formatar_moeda(df_f["Conta_Propria_Renda_Media"].mean()),
-        )
-
-        c4.metric(
-            "Percentual",
-            formatar_moeda(df_f["Percentual_Conta_Propria"].mean()),
-        )
-        c5.metric(
-            "Ponderado",
-            formatar_numero(df_f["Conta_Propria_Ponderado"].mean()),
-        )
+        c1.metric("Total", formatar_numero(df_f["Conta_Propria_Total"].mean()))
+        c2.metric("Renda Total", formatar_moeda(df_f["Conta_Propria_Renda_Total"].mean()))
+        c3.metric("Renda Media", formatar_moeda(df_f["Conta_Propria_Renda_Media"].mean()))
+        c4.metric("Percentual", f"{df_f['Percentual_Conta_Propria'].mean():.1f}%")
+        c5.metric("Ponderado", formatar_numero(df_f["Conta_Propria_Ponderado"].mean()))
 
         st.divider()
+
         opcoes = [
             "Conta_Propria_Total",
             "Conta_Propria_Renda_Total",
             "Conta_Propria_Renda_Media",
             "Percentual_Conta_Propria",
-            "Conta_Propria_Ponderado"
+            "Conta_Propria_Ponderado",
         ]
         series = seletor_series(opcoes, "contapropria")
         fig = grafico_linha(df_f, "Periodo", series, "Series de Conta Propria")
         st.plotly_chart(fig, use_container_width=True)
 
-
-# MODULO 6 - EMPREGADORES
 
 elif modulo == "Empregadores":
     st.header("Empregadores")
@@ -390,76 +300,33 @@ elif modulo == "Empregadores":
     if df_f.empty:
         st.warning("Nenhum dado para os filtros selecionados.")
     else:
-        ano_min = int(df_f["Ano"].min())
-        ano_max = int(df_f["Ano"].max())
-        st.caption(
-            f"Valores correspondem a media dos trimestres filtrados "
-            f"({ano_min} a {ano_max})."
-        )
-
         c1, c2, c3, c4, c5 = st.columns(5)
-        c1.metric(
-            "Total",
-            formatar_numero(df_f["Empregador_Total"].mean()),
-        )
-        c2.metric(
-            "Renda Total",
-            formatar_moeda(df_f["Empregador_Renda_Total"].mean()),
-        )
-        c3.metric(
-            "Renda Media",
-            formatar_moeda(df_f["Empregador_Renda_Media"].mean()),
-        )
-
-        c4.metric(
-            "Percentual",
-            formatar_moeda(df_f["Percentual_Empregador"].mean()),
-        )
-
-        c5.metric(
-            "Ponderado",
-            formatar_numero(df_f["Empregador_Ponderado"].mean()),
-        )   
+        c1.metric("Total", formatar_numero(df_f["Empregador_Total"].mean()))
+        c2.metric("Renda Total", formatar_moeda(df_f["Empregador_Renda_Total"].mean()))
+        c3.metric("Renda Media", formatar_moeda(df_f["Empregador_Renda_Media"].mean()))
+        c4.metric("Percentual", f"{df_f['Percentual_Empregador'].mean():.1f}%")
+        c5.metric("Ponderado", formatar_numero(df_f["Empregador_Ponderado"].mean()))
 
         st.divider()
+
         opcoes = [
             "Empregador_Total",
             "Empregador_Renda_Total",
             "Empregador_Renda_Media",
             "Percentual_Empregador",
-            "Empregador_Ponderado"
+            "Empregador_Ponderado",
         ]
         series = seletor_series(opcoes, "empregadores")
         fig = grafico_linha(df_f, "Periodo", series, "Series de Empregadores")
         st.plotly_chart(fig, use_container_width=True)
 
 
-# MODULO 7 - ESCOLARIDADE x RENDA
 
 elif modulo == "Escolaridade x Renda":
     st.header("Escolaridade x Renda")
     st.sidebar.subheader("Filtros")
 
-    with st.sidebar:
-        ano = filtro_ano_unico(df_esc, "esc")
-        multi = st.checkbox(
-            "Comparar varios trimestres", value=False, key="esc_multi"
-        )
-
-        tris_disp = sorted(df_esc[df_esc["Ano"] == ano]["Trimestre"].unique())
-
-        if multi:
-            tris_sel = st.multiselect(
-                "Trimestres",
-                options=tris_disp,
-                default=tris_disp,
-                key="esc_tris",
-            )
-            if not tris_sel:
-                tris_sel = tris_disp
-        else:
-            tri = filtro_trimestre_unico(df_esc, ano, "esc")
-            tris_sel = [tri]
+    ano, tris_sel = filtrar_ano_tri(df_esc, "esc")
 
     df_f = df_esc[
         (df_esc["Ano"] == ano) & (df_esc["Trimestre"].isin(tris_sel))
@@ -468,7 +335,7 @@ elif modulo == "Escolaridade x Renda":
     if df_f.empty:
         st.warning("Nenhum dado para os filtros selecionados.")
     else:
-        if multi and len(tris_sel) > 1:
+        if len(tris_sel) > 1:
             fig_v = grafico_barras(
                 df_f,
                 x="Escolaridade_Desc",
@@ -502,8 +369,6 @@ elif modulo == "Escolaridade x Renda":
             )
             st.plotly_chart(fig_h, use_container_width=True)
 
-
-# MODULO 8 - HORAS TRABALHADAS x RENDA
 
 elif modulo == "Horas Trabalhadas x Renda":
     st.header("Horas Trabalhadas x Renda")
@@ -565,3 +430,289 @@ elif modulo == "Horas Trabalhadas x Renda":
                 titulo="Renda Total (barras)",
             )
             st.plotly_chart(fig_barra, use_container_width=True)
+
+
+
+elif modulo == "Idade x Renda":
+    st.header("Idade x Renda")
+    st.sidebar.subheader("Filtros")
+
+    ano, tris_sel = filtrar_ano_tri(df_idade, "idade")
+
+    df_f = df_idade[
+        (df_idade["Ano"] == ano) & (df_idade["Trimestre"].isin(tris_sel))
+    ].copy()
+
+    if df_f.empty:
+        st.warning("Nenhum dado para os filtros selecionados.")
+    else:
+        df_f = df_f.sort_values("Idade")
+
+        idade_min = int(df_f["Idade"].min())
+        idade_max = int(df_f["Idade"].max())
+
+        faixa = st.slider(
+            "Faixa de idade",
+            min_value=idade_min,
+            max_value=idade_max,
+            value=(idade_min, idade_max),
+            key="idade_slider",
+        )
+
+        df_f = df_f[
+            (df_f["Idade"] >= faixa[0]) & (df_f["Idade"] <= faixa[1])
+        ].copy()
+
+        fig = grafico_linha(
+            df_f,
+            "Idade",
+            ["Renda_Media"],
+            "Renda Média por Idade",
+            rotulo_y="Renda Média",
+        )
+        fig.update_layout(xaxis_title="Idade")
+        st.plotly_chart(fig, use_container_width=True)
+
+        fig_disp = grafico_dispersao(
+            df_f,
+            x="Idade",
+            y="Renda_Media",
+            titulo="Dispersão — Idade x Renda Média",
+        )
+        st.plotly_chart(fig_disp, use_container_width=True)
+
+
+elif modulo == "Tempo de Trabalho x Renda":
+    st.header("Tempo de Trabalho x Renda")
+    st.sidebar.subheader("Filtros")
+
+    ano, tris_sel = filtrar_ano_tri(df_tempo, "tempo")
+
+    df_f = df_tempo[
+        (df_tempo["Ano"] == ano) & (df_tempo["Trimestre"].isin(tris_sel))
+    ].copy()
+
+    if df_f.empty:
+        st.warning("Nenhum dado para os filtros selecionados.")
+    else:
+        df_f = df_f.sort_values("Tempo_Trabalho")
+
+        t_min = int(df_f["Tempo_Trabalho"].min())
+        t_max = int(df_f["Tempo_Trabalho"].max())
+
+        faixa = st.slider(
+            "Faixa de tempo de trabalho",
+            min_value=t_min,
+            max_value=t_max,
+            value=(t_min, t_max),
+            key="tempo_slider",
+        )
+
+        df_f = df_f[
+            (df_f["Tempo_Trabalho"] >= faixa[0])
+            & (df_f["Tempo_Trabalho"] <= faixa[1])
+        ].copy()
+
+        fig = grafico_linha(
+            df_f,
+            "Tempo_Trabalho",
+            ["Renda_Media"],
+            "Renda Média por Tempo de Trabalho",
+            rotulo_y="Renda Média",
+        )
+        fig.update_layout(xaxis_title="Tempo de Trabalho")
+        st.plotly_chart(fig, use_container_width=True)
+
+        fig_disp = grafico_dispersao(
+            df_f,
+            x="Tempo_Trabalho",
+            y="Renda_Media",
+            titulo="Dispersão — Tempo de Trabalho x Renda Média",
+        )
+        st.plotly_chart(fig_disp, use_container_width=True)
+
+
+elif modulo == "Escolaridade x Ocupacao":
+    st.header("Escolaridade x Ocupacao")
+    st.sidebar.subheader("Filtros")
+
+    ano, tris_sel = filtrar_ano_tri(df_esc_ocup, "escocup")
+
+    df_f = df_esc_ocup[
+        (df_esc_ocup["Ano"] == ano)
+        & (df_esc_ocup["Trimestre"].isin(tris_sel))
+    ].copy()
+
+    if df_f.empty:
+        st.warning("Nenhum dado para os filtros selecionados.")
+    else:
+        agg = (
+            df_f.groupby("Escolaridade_Desc")["Percentual_Ocupados"]
+            .mean()
+            .reset_index()
+            .sort_values("Percentual_Ocupados", ascending=False)
+        )
+
+        c1, c2 = st.columns(2)
+
+        with c1:
+            fig = grafico_barras(
+                agg,
+                x="Escolaridade_Desc",
+                y="Percentual_Ocupados",
+                titulo="Percentual de Ocupados por Escolaridade",
+            )
+            st.plotly_chart(fig, use_container_width=True)
+
+        with c2:
+            fig_h = grafico_barras(
+                agg.sort_values("Percentual_Ocupados"),
+                x="Escolaridade_Desc",
+                y="Percentual_Ocupados",
+                titulo="Percentual de Ocupados por Escolaridade (ordenado)",
+                orientacao="h",
+            )
+            st.plotly_chart(fig_h, use_container_width=True)
+
+
+elif modulo == "Escolaridade x Carteira Assinada":
+    st.header("Escolaridade x Carteira Assinada")
+    st.sidebar.subheader("Filtros")
+
+    ano, tris_sel = filtrar_ano_tri(df_esc_cart, "esccart")
+
+    df_f = df_esc_cart[
+        (df_esc_cart["Ano"] == ano)
+        & (df_esc_cart["Trimestre"].isin(tris_sel))
+    ].copy()
+
+    if df_f.empty:
+        st.warning("Nenhum dado para os filtros selecionados.")
+    else:
+        agg = (
+            df_f.groupby("Escolaridade_Desc")["Percentual_Carteira"]
+            .mean()
+            .reset_index()
+            .sort_values("Percentual_Carteira", ascending=False)
+        )
+
+        c1, c2 = st.columns(2)
+
+        with c1:
+            fig = grafico_barras(
+                agg,
+                x="Escolaridade_Desc",
+                y="Percentual_Carteira",
+                titulo="Percentual com Carteira Assinada por Escolaridade",
+            )
+            st.plotly_chart(fig, use_container_width=True)
+
+        with c2:
+            fig_h = grafico_barras(
+                agg.sort_values("Percentual_Carteira"),
+                x="Escolaridade_Desc",
+                y="Percentual_Carteira",
+                titulo="Percentual com Carteira Assinada (ordenado)",
+                orientacao="h",
+            )
+            st.plotly_chart(fig_h, use_container_width=True)
+
+
+elif modulo == "Sexo x Renda x Escolaridade":
+    st.header("Sexo x Renda x Escolaridade")
+    st.sidebar.subheader("Filtros")
+
+    ano, tris_sel = filtrar_ano_tri(df_sexo_esc, "sexoesc")
+
+    sexos = sorted(df_sexo_esc["Sexo_Desc"].dropna().unique().tolist())
+    with st.sidebar:
+        sexo_sel = st.multiselect(
+            "Sexo",
+            options=sexos,
+            default=sexos,
+            key="sexoesc_sexo",
+        )
+
+    df_f = df_sexo_esc[
+        (df_sexo_esc["Ano"] == ano)
+        & (df_sexo_esc["Trimestre"].isin(tris_sel))
+        & (df_sexo_esc["Sexo_Desc"].isin(sexo_sel))
+    ].copy()
+
+    if df_f.empty:
+        st.warning("Nenhum dado para os filtros selecionados.")
+    else:
+        agg = (
+            df_f.groupby(["Escolaridade_Desc", "Sexo_Desc"])["Renda_Media"]
+            .mean()
+            .reset_index()
+        )
+
+        fig = grafico_barras(
+            agg,
+            x="Escolaridade_Desc",
+            y="Renda_Media",
+            titulo="Renda Média por Sexo e Escolaridade",
+            cor="Sexo_Desc",
+        )
+        st.plotly_chart(fig, use_container_width=True)
+
+        fig_h = grafico_barras(
+            agg.sort_values("Renda_Media"),
+            x="Escolaridade_Desc",
+            y="Renda_Media",
+            titulo="Renda Média por Sexo e Escolaridade (horizontal)",
+            cor="Sexo_Desc",
+            orientacao="h",
+        )
+        st.plotly_chart(fig_h, use_container_width=True)
+
+
+elif modulo == "Cor/Raca x Escolaridade x Renda":
+    st.header("Cor/Raca x Escolaridade x Renda")
+    st.sidebar.subheader("Filtros")
+
+    ano, tris_sel = filtrar_ano_tri(df_raca_esc, "racaesc")
+
+    racas = sorted(df_raca_esc["Cor_Raca_Desc"].dropna().unique().tolist())
+    with st.sidebar:
+        raca_sel = st.multiselect(
+            "Cor/Raça",
+            options=racas,
+            default=racas,
+            key="racaesc_raca",
+        )
+
+    df_f = df_raca_esc[
+        (df_raca_esc["Ano"] == ano)
+        & (df_raca_esc["Trimestre"].isin(tris_sel))
+        & (df_raca_esc["Cor_Raca_Desc"].isin(raca_sel))
+    ].copy()
+
+    if df_f.empty:
+        st.warning("Nenhum dado para os filtros selecionados.")
+    else:
+        agg = (
+            df_f.groupby(["Escolaridade_Desc", "Cor_Raca_Desc"])["Renda_Media"]
+            .mean()
+            .reset_index()
+        )
+
+        fig = grafico_barras(
+            agg,
+            x="Escolaridade_Desc",
+            y="Renda_Media",
+            titulo="Renda Média por Cor/Raça e Escolaridade",
+            cor="Cor_Raca_Desc",
+        )
+        st.plotly_chart(fig, use_container_width=True)
+
+        fig_h = grafico_barras(
+            agg.sort_values("Renda_Media"),
+            x="Escolaridade_Desc",
+            y="Renda_Media",
+            titulo="Renda Média por Cor/Raça e Escolaridade (horizontal)",
+            cor="Cor_Raca_Desc",
+            orientacao="h",
+        )
+        st.plotly_chart(fig_h, use_container_width=True)
