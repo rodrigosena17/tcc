@@ -351,14 +351,6 @@ elif modulo == "Escolaridade x Renda":
                 .reset_index()
             )
 
-            fig_v = grafico_barras(
-                agg,
-                x="Escolaridade_Desc",
-                y="Renda_Total",
-                titulo="Renda Total por Escolaridade",
-            )
-            st.plotly_chart(fig_v, use_container_width=True)
-
             agg_ord = agg.sort_values("Renda_Total", ascending=True)
             fig_h = grafico_barras(
                 agg_ord,
@@ -400,37 +392,16 @@ elif modulo == "Horas Trabalhadas x Renda":
     if df_f.empty:
         st.warning("Nenhum dado para os filtros selecionados.")
     else:
-        st.subheader("Análise através de um gráfico de dispersão")
-        fig_disp = grafico_dispersao(
-            df_f,
-            x="Horas_Semanais",
-            y="Renda_Total",
-            titulo="Renda Total por Horas Semanais",
-        )
-        st.plotly_chart(fig_disp, use_container_width=True)
-
-        col_a, col_b = st.columns(2)
-
-        with col_a:
-            fig_linha = grafico_linha(
+        st.subheader("Análise através de um gráfico de linha")
+        fig_linha = grafico_linha(
                 df_f,
                 "Horas_Semanais",
                 ["Renda_Total"],
                 "Renda Total (linha)",
                 rotulo_y="Renda Total",
             )
-            fig_linha.update_layout(xaxis_title="Horas Semanais")
-            st.plotly_chart(fig_linha, use_container_width=True)
-
-        with col_b:
-            fig_barra = grafico_barras(
-                df_f,
-                x="Horas_Semanais",
-                y="Renda_Total",
-                titulo="Renda Total (barras)",
-            )
-            st.plotly_chart(fig_barra, use_container_width=True)
-
+        fig_linha.update_layout(xaxis_title="Horas Semanais")
+        st.plotly_chart(fig_linha, use_container_width=True)
 
 
 elif modulo == "Idade x Renda":
@@ -473,13 +444,6 @@ elif modulo == "Idade x Renda":
         fig.update_layout(xaxis_title="Idade")
         st.plotly_chart(fig, use_container_width=True)
 
-        fig_disp = grafico_dispersao(
-            df_f,
-            x="Idade",
-            y="Renda_Media",
-            titulo="Dispersão — Idade x Renda Média",
-        )
-        st.plotly_chart(fig_disp, use_container_width=True)
 
 
 elif modulo == "Tempo de Trabalho x Renda":
@@ -523,14 +487,6 @@ elif modulo == "Tempo de Trabalho x Renda":
         fig.update_layout(xaxis_title="Tempo de Trabalho")
         st.plotly_chart(fig, use_container_width=True)
 
-        fig_disp = grafico_dispersao(
-            df_f,
-            x="Tempo_Trabalho",
-            y="Renda_Media",
-            titulo="Dispersão — Tempo de Trabalho x Renda Média",
-        )
-        st.plotly_chart(fig_disp, use_container_width=True)
-
 
 elif modulo == "Escolaridade x Ocupacao":
     st.header("Escolaridade x Ocupacao")
@@ -553,18 +509,9 @@ elif modulo == "Escolaridade x Ocupacao":
             .sort_values("Percentual_Ocupados", ascending=False)
         )
 
-        c1, c2 = st.columns(2)
+        c1,c2 = st.columns(2)
 
         with c1:
-            fig = grafico_barras(
-                agg,
-                x="Escolaridade_Desc",
-                y="Percentual_Ocupados",
-                titulo="Percentual de Ocupados por Escolaridade",
-            )
-            st.plotly_chart(fig, use_container_width=True)
-
-        with c2:
             fig_h = grafico_barras(
                 agg.sort_values("Percentual_Ocupados"),
                 x="Escolaridade_Desc",
@@ -607,15 +554,6 @@ elif modulo == "Escolaridade x Carteira Assinada":
             )
             st.plotly_chart(fig, use_container_width=True)
 
-        with c2:
-            fig_h = grafico_barras(
-                agg.sort_values("Percentual_Carteira"),
-                x="Escolaridade_Desc",
-                y="Percentual_Carteira",
-                titulo="Percentual com Carteira Assinada (ordenado)",
-                orientacao="h",
-            )
-            st.plotly_chart(fig_h, use_container_width=True)
 
 
 elif modulo == "Sexo x Renda x Escolaridade":
@@ -657,16 +595,6 @@ elif modulo == "Sexo x Renda x Escolaridade":
         )
         st.plotly_chart(fig, use_container_width=True)
 
-        fig_h = grafico_barras(
-            agg.sort_values("Renda_Media"),
-            x="Escolaridade_Desc",
-            y="Renda_Media",
-            titulo="Renda Média por Sexo e Escolaridade (horizontal)",
-            cor="Sexo_Desc",
-            orientacao="h",
-        )
-        st.plotly_chart(fig_h, use_container_width=True)
-
 
 elif modulo == "Cor/Raca x Escolaridade x Renda":
     st.header("Cor/Raca x Escolaridade x Renda")
@@ -697,15 +625,6 @@ elif modulo == "Cor/Raca x Escolaridade x Renda":
             .mean()
             .reset_index()
         )
-
-        fig = grafico_barras(
-            agg,
-            x="Escolaridade_Desc",
-            y="Renda_Media",
-            titulo="Renda Média por Cor/Raça e Escolaridade",
-            cor="Cor_Raca_Desc",
-        )
-        st.plotly_chart(fig, use_container_width=True)
 
         fig_h = grafico_barras(
             agg.sort_values("Renda_Media"),
