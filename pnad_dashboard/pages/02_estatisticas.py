@@ -22,7 +22,6 @@ from utils.filtros import (
 from utils.graficos import (
     grafico_linha,
     grafico_barras,
-    grafico_dispersao,
 )
 
 st.set_page_config(page_title="Estatisticas - PNAD", layout="wide")
@@ -165,7 +164,7 @@ if modulo == "Panorama Geral":
         series = seletor_series(opcoes, "panorama", padrao="_empilhada")
 
         fig = grafico_linha(df_f, "Periodo", series, "Evolucao das Series Selecionadas")
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, width='stretch')
 
 
 elif modulo == "Ocupados":
@@ -194,7 +193,7 @@ elif modulo == "Ocupados":
         ]
         series = seletor_series(opcoes, "ocupados")
         fig = grafico_linha(df_f, "Periodo", series, "Series de Ocupados")
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, width='stretch')
 
 
 elif modulo == "Carteira Assinada":
@@ -225,7 +224,7 @@ elif modulo == "Carteira Assinada":
         ]
         series = seletor_series(opcoes, "carteira")
         fig = grafico_linha(df_f, "Periodo", series, "Series de Carteira Assinada")
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, width='stretch')
 
 
 elif modulo == "Servidor Publico":
@@ -256,7 +255,7 @@ elif modulo == "Servidor Publico":
         ]
         series = seletor_series(opcoes, "servidor")
         fig = grafico_linha(df_f, "Periodo", series, "Series de Servidor Publico")
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, width='stretch')
 
 
 elif modulo == "Conta Propria":
@@ -287,7 +286,7 @@ elif modulo == "Conta Propria":
         ]
         series = seletor_series(opcoes, "contapropria")
         fig = grafico_linha(df_f, "Periodo", series, "Series de Conta Propria")
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, width='stretch')
 
 
 elif modulo == "Empregadores":
@@ -318,7 +317,7 @@ elif modulo == "Empregadores":
         ]
         series = seletor_series(opcoes, "empregadores")
         fig = grafico_linha(df_f, "Periodo", series, "Series de Empregadores")
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, width='stretch')
 
 
 
@@ -340,10 +339,10 @@ elif modulo == "Escolaridade x Renda":
                 df_f,
                 x="Escolaridade_Desc",
                 y="Renda_Total",
-                titulo="Renda Total por Escolaridade (comparacao)",
+                titulo="Renda Total por Escolaridade",
                 cor="Trimestre",
             )
-            st.plotly_chart(fig_v, use_container_width=True)
+            st.plotly_chart(fig_v, width='stretch')
         else:
             agg = (
                 df_f.groupby("Escolaridade_Desc")["Renda_Total"]
@@ -356,10 +355,10 @@ elif modulo == "Escolaridade x Renda":
                 agg_ord,
                 x="Escolaridade_Desc",
                 y="Renda_Total",
-                titulo="Renda Total por Escolaridade (ordenado)",
+                titulo="Renda Total por Escolaridade",
                 orientacao="h",
             )
-            st.plotly_chart(fig_h, use_container_width=True)
+            st.plotly_chart(fig_h, width='stretch')
 
 
 elif modulo == "Horas Trabalhadas x Renda":
@@ -401,7 +400,7 @@ elif modulo == "Horas Trabalhadas x Renda":
                 rotulo_y="Renda Total",
             )
         fig_linha.update_layout(xaxis_title="Horas Semanais")
-        st.plotly_chart(fig_linha, use_container_width=True)
+        st.plotly_chart(fig_linha, width='stretch')
 
 
 elif modulo == "Idade x Renda":
@@ -439,10 +438,10 @@ elif modulo == "Idade x Renda":
             "Idade",
             ["Renda_Media"],
             "Renda Média por Idade",
-            rotulo_y="Renda Média",
+            rotulo_y="Renda Média Mensal",
         )
         fig.update_layout(xaxis_title="Idade")
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, width='stretch')
 
 
 
@@ -459,33 +458,15 @@ elif modulo == "Tempo de Trabalho x Renda":
     if df_f.empty:
         st.warning("Nenhum dado para os filtros selecionados.")
     else:
-        df_f = df_f.sort_values("Tempo_Trabalho")
-
-        t_min = int(df_f["Tempo_Trabalho"].min())
-        t_max = int(df_f["Tempo_Trabalho"].max())
-
-        faixa = st.slider(
-            "Faixa de tempo de trabalho",
-            min_value=t_min,
-            max_value=t_max,
-            value=(t_min, t_max),
-            key="tempo_slider",
-        )
-
-        df_f = df_f[
-            (df_f["Tempo_Trabalho"] >= faixa[0])
-            & (df_f["Tempo_Trabalho"] <= faixa[1])
-        ].copy()
-
         fig = grafico_linha(
             df_f,
-            "Tempo_Trabalho",
+            "Tempo_Trabalho_Desc",
             ["Renda_Media"],
             "Renda Média por Tempo de Trabalho",
-            rotulo_y="Renda Média",
+            rotulo_y="Renda Média Mensal",
         )
         fig.update_layout(xaxis_title="Tempo de Trabalho")
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, width='stretch')
 
 
 elif modulo == "Escolaridade x Ocupacao":
@@ -516,10 +497,10 @@ elif modulo == "Escolaridade x Ocupacao":
                 agg.sort_values("Percentual_Ocupados"),
                 x="Escolaridade_Desc",
                 y="Percentual_Ocupados",
-                titulo="Percentual de Ocupados por Escolaridade (ordenado)",
+                titulo="Percentual de Ocupados por Escolaridade",
                 orientacao="h",
             )
-            st.plotly_chart(fig_h, use_container_width=True)
+            st.plotly_chart(fig_h, width='stretch')
 
 
 elif modulo == "Escolaridade x Carteira Assinada":
@@ -552,7 +533,7 @@ elif modulo == "Escolaridade x Carteira Assinada":
                 y="Percentual_Carteira",
                 titulo="Percentual com Carteira Assinada por Escolaridade",
             )
-            st.plotly_chart(fig, use_container_width=True)
+            st.plotly_chart(fig, width='stretch')
 
 
 
@@ -590,10 +571,10 @@ elif modulo == "Sexo x Renda x Escolaridade":
             agg,
             x="Escolaridade_Desc",
             y="Renda_Media",
-            titulo="Renda Média por Sexo e Escolaridade",
+            titulo="Renda Média Mensal por Sexo e Escolaridade",
             cor="Sexo_Desc",
         )
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, width='stretch')
 
 
 elif modulo == "Cor/Raca x Escolaridade x Renda":
@@ -630,8 +611,8 @@ elif modulo == "Cor/Raca x Escolaridade x Renda":
             agg.sort_values("Renda_Media"),
             x="Escolaridade_Desc",
             y="Renda_Media",
-            titulo="Renda Média por Cor/Raça e Escolaridade (horizontal)",
+            titulo="Renda Média por Cor/Raça e Escolaridade",
             cor="Cor_Raca_Desc",
             orientacao="h",
         )
-        st.plotly_chart(fig_h, use_container_width=True)
+        st.plotly_chart(fig_h, width='stretch')

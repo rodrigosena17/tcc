@@ -95,8 +95,21 @@ def carregar_tempo_trabalho_renda():
         "tempo_trabalho_renda_empilhada.csv"
     )
 
+    mapa_tempo_trabalho = {
+        1: "Até 1 mês",
+        2: "De 1 mês ou mais, mas a menos de 1 ano",
+        3: "De 1 ano ou mais, mas menos de 2 anos",
+        4: "De 2 anos ou mais"
+    }
+
     df = pd.read_csv(caminho)
     df = _criar_periodo(df)
+
+    df["Tempo_Trabalho_Desc"] = (
+        df["Tempo_Trabalho"]
+        .map(mapa_tempo_trabalho)
+        .fillna(df["Tempo_Trabalho"].astype(str))
+    )
 
     return df
 
@@ -184,6 +197,6 @@ def _criar_periodo(df):
     df = df.copy()
     df["Ano"] = df["Ano"].astype(int)
     df["Trimestre"] = df["Trimestre"].astype(int)
-    df["Periodo"] = df["Ano"].astype(str) + " T" + df["Trimestre"].astype(str)
+    df["Periodo"] = df["Ano"].astype(str) + "." + df["Trimestre"].astype(str)
     df = df.sort_values(["Ano", "Trimestre"]).reset_index(drop=True)
     return df
