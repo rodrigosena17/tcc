@@ -562,8 +562,48 @@ def calcular_estatisticas(base_dir_organizados_csv: str,
             index=False
         )
 
-        renda_horas_semanais_df[renda_horas_semanais_df["Ano"] == ano].to_csv(
-            caminho_horas_semanais,
+        resultados_df.to_csv(
+            os.path.join(pasta_resultados, "estatisticas_empilhadas.csv"),
+            index=False
+        )
+    
+        renda_escolaridade_df.to_csv(
+            os.path.join(pasta_resultados, "renda_escolaridade_empilhada.csv"),
+            index=False
+        )
+    
+        renda_horas_semanais_df.to_csv(
+            os.path.join(pasta_resultados, "renda_horas_semanais_empilhada.csv"),
+            index=False
+        )
+    
+        idade_renda_df.to_csv(
+            os.path.join(pasta_resultados, "idade_renda_empilhada.csv"),
+            index=False
+        )
+    
+        tempo_trabalho_renda_df.to_csv(
+            os.path.join(pasta_resultados, "tempo_trabalho_renda_empilhada.csv"),
+            index=False
+        )
+    
+        escolaridade_ocupacao_df.to_csv(
+            os.path.join(pasta_resultados, "escolaridade_ocupacao_empilhada.csv"),
+            index=False
+        )
+    
+        escolaridade_carteira_df.to_csv(
+            os.path.join(pasta_resultados, "escolaridade_carteira_empilhada.csv"),
+            index=False
+        )
+    
+        sexo_renda_escolaridade_df.to_csv(
+            os.path.join(pasta_resultados, "sexo_renda_escolaridade_empilhada.csv"),
+            index=False
+        )
+    
+        cor_raca_renda_escolaridade_df.to_csv(
+            os.path.join(pasta_resultados, "cor_raca_renda_escolaridade_empilhada.csv"),
             index=False
         )
 
