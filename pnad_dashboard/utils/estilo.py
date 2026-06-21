@@ -46,7 +46,7 @@ CSS = """
         color: #5a8a3c !important;
     }
 
-    /* Abas */
+
     button[data-baseweb="tab"] {
         color: #1d5631;
     }

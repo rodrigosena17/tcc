@@ -10,6 +10,7 @@ PALETA = [
     "#3c6e47",  # verde musgo
     "#8c6d3f",  # marrom claro
     "#d68c45",  # laranja terroso
+    "#000000"   # preto
 ]
 
 LAYOUT_BASE = dict(
@@ -34,15 +35,11 @@ LAYOUT_BASE = dict(
 def _aplicar_estilo_eixos(fig, xaxis_title=None, yaxis_title=None):
     fig.update_xaxes(
         title=xaxis_title,
-        gridcolor="#e3ddc4",
+        gridcolor="#e3c4c4",
         zeroline=False,
         tickfont=dict(color="#000000"),
         title_font=dict(color="#000000"),
         linecolor="#000000",
-        coloraxis_colorbar=dict(
-        title_font=dict(color="black"),
-        tickfont=dict(color="black")
-    )
     )
     fig.update_yaxes(
         title=yaxis_title,
@@ -51,10 +48,6 @@ def _aplicar_estilo_eixos(fig, xaxis_title=None, yaxis_title=None):
         tickfont=dict(color="#000000"),
         title_font=dict(color="#000000"),
         linecolor="#000000",
-        coloraxis_colorbar=dict(
-        title_font=dict(color="black"),
-        tickfont=dict(color="black")
-    )
     )
     return fig
 
@@ -82,10 +75,6 @@ def grafico_linha(df, x, ys, titulo, rotulo_y="Valor"):
         xaxis_title=x,
         yaxis_title=rotulo_y,
         **LAYOUT_BASE,
-        coloraxis_colorbar=dict(
-        title_font=dict(color="black"),
-        tickfont=dict(color="black")
-    )
     )
 
     fig = _aplicar_estilo_eixos(fig, xaxis_title=x, yaxis_title=rotulo_y)
@@ -121,10 +110,6 @@ def grafico_barras(df, x, y, titulo, cor=None, orientacao="v"):
     fig.update_layout(
         title=titulo,
         **LAYOUT_BASE,
-        coloraxis_colorbar=dict(
-        title_font=dict(color="black"),
-        tickfont=dict(color="black")
-    )
     )
 
     if orientacao != "h":
