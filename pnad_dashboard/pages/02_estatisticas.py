@@ -29,7 +29,7 @@ st.set_page_config(page_title="Estatisticas - PNAD", layout="wide")
 
 aplicar_estilo()
 
-st.title("Estatisticas Interativas")
+st.title("Estatisticas PNAD Contínua")
 st.caption(
     "🛈 Nessa seção é possível explorar as estatísticas trimestrais da PNAD Contínua "
     "de forma interativa, aplicando filtros e visualizando gráficos personalizados."
