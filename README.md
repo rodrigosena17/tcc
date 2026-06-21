@@ -600,7 +600,7 @@ No Linux/Mac:
 
 - O deploy do app foi feito na plataforma do streamlit, e pode ser acessado no link abaixo:
 
-`[PNAD Dashboard - App](https://pnad-dashboard.streamlit.app/)`
+[PNAD Dashboard - App](https://pnad-dashboard.streamlit.app/)
 
 ---
 
