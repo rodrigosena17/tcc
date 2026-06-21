@@ -1,5 +1,6 @@
 import streamlit as st
 import pandas as pd
+import plotly.express as px
 
 from utils.estilo import aplicar_estilo
 from utils.carregamento import (
@@ -433,15 +434,26 @@ elif modulo == "Idade x Renda":
             (df_f["Idade"] >= faixa[0]) & (df_f["Idade"] <= faixa[1])
         ].copy()
 
-        fig = grafico_linha(
-            df_f,
-            "Idade",
-            ["Renda_Media"],
-            "Renda Média por Idade",
-            rotulo_y="Renda Média Mensal",
-        )
-        fig.update_layout(xaxis_title="Idade")
+        if len(tris_sel) > 1:
+            fig = px.line(
+                df_f,
+                x="Idade",
+                y="Renda_Media",
+                color="Trimestre",
+                markers=True
+            )
+        else:
+            fig = grafico_linha(
+                df_f.sort_values("Idade"),
+                "Idade",
+                ["Renda_Media"],
+                "Renda Média por Idade",
+                rotulo_y="Renda Média Mensal",
+            )
+
         st.plotly_chart(fig, width='stretch')
+        fig.update_layout(xaxis_title="Idade")
+
 
 
 
@@ -458,13 +470,21 @@ elif modulo == "Tempo de Trabalho x Renda":
     if df_f.empty:
         st.warning("Nenhum dado para os filtros selecionados.")
     else:
-        fig = grafico_linha(
-            df_f,
-            "Tempo_Trabalho_Desc",
-            ["Renda_Media"],
-            "Renda Média por Tempo de Trabalho",
-            rotulo_y="Renda Média Mensal",
-        )
+        if len(tris_sel) > 1:
+            fig = grafico_barras(
+                df_f,
+                x="Tempo_Trabalho_Desc",
+                y="Renda_Media",
+                titulo="Renda Média por Tempo de Trabalho",
+                cor="Trimestre",
+            )
+        else:
+            fig = grafico_barras(
+                df_f,
+                x="Tempo_Trabalho_Desc",
+                y="Renda_Media",
+                titulo="Renda Média por Tempo de Trabalho",
+            )
         fig.update_layout(xaxis_title="Tempo de Trabalho")
         st.plotly_chart(fig, width='stretch')
 
@@ -483,16 +503,21 @@ elif modulo == "Escolaridade x Ocupacao":
     if df_f.empty:
         st.warning("Nenhum dado para os filtros selecionados.")
     else:
-        agg = (
-            df_f.groupby("Escolaridade_Desc")["Percentual_Ocupados"]
-            .mean()
-            .reset_index()
-            .sort_values("Percentual_Ocupados", ascending=False)
-        )
+        if len(tris_sel) > 1:
+            fig_h = grafico_barras(
+                df_f,
+                x="Escolaridade_Desc",
+                y="Percentual_Ocupados",
+                titulo="Percentual de Ocupados por Escolaridade",
+                cor="Trimestre",
+            )
+        else:
+            agg = (
+                df_f.groupby("Escolaridade_Desc")["Percentual_Ocupados"]
+                .mean()
+                .reset_index()
+            )
 
-        c1,c2 = st.columns(2)
-
-        with c1:
             fig_h = grafico_barras(
                 agg.sort_values("Percentual_Ocupados"),
                 x="Escolaridade_Desc",
@@ -500,7 +525,8 @@ elif modulo == "Escolaridade x Ocupacao":
                 titulo="Percentual de Ocupados por Escolaridade",
                 orientacao="h",
             )
-            st.plotly_chart(fig_h, width='stretch')
+
+        st.plotly_chart(fig_h, width='stretch')
 
 
 elif modulo == "Escolaridade x Carteira Assinada":
@@ -517,23 +543,29 @@ elif modulo == "Escolaridade x Carteira Assinada":
     if df_f.empty:
         st.warning("Nenhum dado para os filtros selecionados.")
     else:
-        agg = (
-            df_f.groupby("Escolaridade_Desc")["Percentual_Carteira"]
-            .mean()
-            .reset_index()
-            .sort_values("Percentual_Carteira", ascending=False)
-        )
+        if len(tris_sel) > 1:
+            fig = grafico_barras(
+                df_f,
+                x="Escolaridade_Desc",
+                y="Percentual_Carteira",
+                titulo="Percentual com Carteira Assinada por Escolaridade",
+                cor="Trimestre",
+            )
+        else:
+            agg = (
+                df_f.groupby("Escolaridade_Desc")["Percentual_Carteira"]
+                .mean()
+                .reset_index()
+            )
 
-        c1, c2 = st.columns(2)
-
-        with c1:
             fig = grafico_barras(
                 agg,
                 x="Escolaridade_Desc",
                 y="Percentual_Carteira",
                 titulo="Percentual com Carteira Assinada por Escolaridade",
             )
-            st.plotly_chart(fig, width='stretch')
+
+        st.plotly_chart(fig, width='stretch')
 
 
 
@@ -561,19 +593,35 @@ elif modulo == "Sexo x Renda x Escolaridade":
     if df_f.empty:
         st.warning("Nenhum dado para os filtros selecionados.")
     else:
-        agg = (
-            df_f.groupby(["Escolaridade_Desc", "Sexo_Desc"])["Renda_Media"]
-            .mean()
-            .reset_index()
-        )
+        if len(tris_sel) > 1:
+            df_f["Serie"] = (
+                df_f["Sexo_Desc"]
+                + " - T"
+                + df_f["Trimestre"].astype(str)
+            )
 
-        fig = grafico_barras(
-            agg,
-            x="Escolaridade_Desc",
-            y="Renda_Media",
-            titulo="Renda Média Mensal por Sexo e Escolaridade",
-            cor="Sexo_Desc",
-        )
+            fig = grafico_barras(
+                df_f,
+                x="Escolaridade_Desc",
+                y="Renda_Media",
+                titulo="Renda Média por Sexo e Escolaridade",
+                cor="Serie",
+            )
+        else:
+            agg = (
+                df_f.groupby(["Escolaridade_Desc", "Sexo_Desc"])["Renda_Media"]
+                .mean()
+                .reset_index()
+            )
+
+            fig = grafico_barras(
+                agg,
+                x="Escolaridade_Desc",
+                y="Renda_Media",
+                titulo="Renda Média por Sexo e Escolaridade",
+                cor="Sexo_Desc",
+            )
+
         st.plotly_chart(fig, width='stretch')
 
 
@@ -601,18 +649,36 @@ elif modulo == "Cor/Raca x Escolaridade x Renda":
     if df_f.empty:
         st.warning("Nenhum dado para os filtros selecionados.")
     else:
-        agg = (
-            df_f.groupby(["Escolaridade_Desc", "Cor_Raca_Desc"])["Renda_Media"]
-            .mean()
-            .reset_index()
-        )
+        if len(tris_sel) > 1:
+            df_f["Serie"] = (
+                df_f["Cor_Raca_Desc"]
+                + " - T"
+                + df_f["Trimestre"].astype(str)
+            )
 
-        fig_h = grafico_barras(
-            agg.sort_values("Renda_Media"),
-            x="Escolaridade_Desc",
-            y="Renda_Media",
-            titulo="Renda Média por Cor/Raça e Escolaridade",
-            cor="Cor_Raca_Desc",
-            orientacao="h",
-        )
+            fig_h = grafico_barras(
+                df_f,
+                x="Escolaridade_Desc",
+                y="Renda_Media",
+                titulo="Renda Média por Cor/Raça e Escolaridade",
+                cor="Serie",
+            )
+        else:
+            agg = (
+                df_f.groupby(
+                    ["Escolaridade_Desc", "Cor_Raca_Desc"]
+                )["Renda_Media"]
+                .mean()
+                .reset_index()
+            )
+
+            fig_h = grafico_barras(
+                agg.sort_values("Renda_Media"),
+                x="Escolaridade_Desc",
+                y="Renda_Media",
+                titulo="Renda Média por Cor/Raça e Escolaridade",
+                cor="Cor_Raca_Desc",
+                orientacao="h",
+            )
+
         st.plotly_chart(fig_h, width='stretch')
