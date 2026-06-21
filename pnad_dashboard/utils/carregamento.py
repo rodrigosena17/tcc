@@ -125,14 +125,21 @@ def adicionar_escolaridade_desc(df: pd.DataFrame) -> pd.DataFrame:
         return df
 
     mapa = {
-        1: "Sem instrução e menos de 1 ano",
-        2: "Fundamental incompleto",
-        3: "Fundamental completo",
-        4: "Médio incompleto",
-        5: "Médio completo",
-        6: "Superior incompleto",
-        7: "Superior completo",
-        8: "Pós-graduação",
+            1: "Creche",
+            2: "Pré-escola",
+            3: "Classe de alfabetização (CA)",
+            4: "Alfabetização de jovens e adultos",
+            5: "Antigo primário (elementar)",
+            6: "Antigo ginásio (médio 1º ciclo)",
+            7: "Ensino fundamental regular",
+            8: "EJA ou supletivo do 1º grau",
+            9: "Antigo científico, clássico etc. (médio 2º ciclo)",
+            10: "Ensino médio regular",
+            11: "EJA ou supletivo do 2º grau",
+            12: "Superior - graduação",
+            13: "Especialização",
+            14: "Mestrado",
+            15: "Doutorado"
     }
 
     if "Escolaridade" in df.columns:
