@@ -59,18 +59,18 @@ st.subheader("Variaveis Utilizadas")
 
 variaveis = {
     "V1028": ["Peso do domicílio das pessoas com calibração", "Valor numérico"],
-    "V2007": ["Sexo","1 = Homem | 2 = Mulher",], #Não utilizado ainda
-    "V2009": ["Idade","Valor numérico entre 0 e 130",], #Não utilizado ainda
-    "V2010": ["Cor/Raça","1 = Branco | 2 = Preto | 3 = Amarelo | 4 = Pardo | 5 = Indígena | 9 = Ignorado",], #Não utilizado ainda
-    "V3014": ["Conclusão de curso frequentado","1 = Sim | 2 = Não",], #Não utilizado ainda
+    "V2007": ["Sexo","1 = Homem | 2 = Mulher",], 
+    "V2009": ["Idade","Valor numérico entre 0 e 130",],
+    "V2010": ["Cor/Raça","1 = Branco | 2 = Preto | 3 = Amarelo | 4 = Pardo | 5 = Indígena | 9 = Ignorado",], 
+    "V3014": ["Conclusão de curso frequentado","1 = Sim | 2 = Não",], 
     "V4001": ["Indicador de ocupação","1 = Trabalhou | 2 = Não trabalhou"],
     "V4028": ["Servidor público", "1 = Sim | 2 = Não"],
     "V4029": ["Carteira assinada", "1 = Sim | 2 = Não"],
     "V4012": ["Posição na ocupação","5 = Empregador | 6 = Conta própria",],
     "V403312": ["Rendimento mensal", "Valor monetário"],
     "V4039": ["Horas trabalhadas por semana", "Horas habituais"],
-    "V4040": ["Tempo de trabalho", "1 = Menos de 1 mês | 2 = 1 mês a menos de 1 ano | 3 = 1 ano a menos de 2 anos | 4 = 2 anos ou mais",], #Não utilizado ainda
-    "V4071": ["Providência para conseguir trabalho", "1 = Sim | 2 = Não",], #Não utilizado ainda
+    "V4040": ["Tempo de trabalho", "1 = Menos de 1 mês | 2 = 1 mês a menos de 1 ano | 3 = 1 ano a menos de 2 anos | 4 = 2 anos ou mais",], 
+    "V4071": ["Providência para conseguir trabalho", "1 = Sim | 2 = Não",], 
     "V3009A": ["Nível de escolaridade", "Categorias de escolaridade"],
 }
 
