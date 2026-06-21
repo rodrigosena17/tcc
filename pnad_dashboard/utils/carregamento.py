@@ -1,17 +1,30 @@
-import os
+from pathlib import Path
+
 import pandas as pd
 import streamlit as st
 
-DIR_DADOS = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "data")
+
+BASE_DIR = Path(__file__).resolve().parents[2]
+PASTA_DADOS = BASE_DIR / "data"
+
 
 def _criar_periodo(df: pd.DataFrame) -> pd.DataFrame:
     df = df.copy()
+
+    if df.empty:
+        return df
+
     if "Ano" in df.columns:
         df["Ano"] = pd.to_numeric(df["Ano"], errors="coerce").astype("Int64")
+
     if "Trimestre" in df.columns:
         df["Trimestre"] = pd.to_numeric(df["Trimestre"], errors="coerce").astype("Int64")
 
     df = df[df["Ano"].notna() & df["Trimestre"].notna()].copy()
+
+    if df.empty:
+        return df
+
     df["Ano"] = df["Ano"].astype(int)
     df["Trimestre"] = df["Trimestre"].astype(int)
     df["Periodo"] = df["Ano"].astype(str) + "T" + df["Trimestre"].astype(str)
@@ -23,9 +36,11 @@ def _ler_empilhado_por_padrao(padrao: str) -> pd.DataFrame:
     arquivos = sorted(PASTA_DADOS.glob(padrao))
 
     if not arquivos:
+        st.warning(f"Nenhum arquivo encontrado em {PASTA_DADOS} com padrão: {padrao}")
         return pd.DataFrame()
 
     dfs = []
+
     for arq in arquivos:
         try:
             df = pd.read_csv(arq)
@@ -45,10 +60,16 @@ def _ler_empilhado_por_padrao(padrao: str) -> pd.DataFrame:
 
 def _to_numeric_cols(df: pd.DataFrame, exceto=None) -> pd.DataFrame:
     df = df.copy()
+
+    if df.empty:
+        return df
+
     exceto = exceto or []
+
     for col in df.columns:
         if col not in exceto:
             df[col] = pd.to_numeric(df[col], errors="ignore")
+
     return df
 
 
@@ -121,25 +142,28 @@ def carregar_cor_raca_renda_escolaridade():
 def adicionar_escolaridade_desc(df: pd.DataFrame) -> pd.DataFrame:
     df = df.copy()
 
+    if df.empty:
+        return df
+
     if "Escolaridade_Desc" in df.columns:
         return df
 
     mapa = {
-            1: "Creche",
-            2: "Pré-escola",
-            3: "Classe de alfabetização (CA)",
-            4: "Alfabetização de jovens e adultos",
-            5: "Antigo primário (elementar)",
-            6: "Antigo ginásio (médio 1º ciclo)",
-            7: "Ensino fundamental regular",
-            8: "EJA ou supletivo do 1º grau",
-            9: "Antigo científico, clássico etc. (médio 2º ciclo)",
-            10: "Ensino médio regular",
-            11: "EJA ou supletivo do 2º grau",
-            12: "Superior - graduação",
-            13: "Especialização",
-            14: "Mestrado",
-            15: "Doutorado"
+        1: "Creche",
+        2: "Pré-escola",
+        3: "Classe de alfabetização (CA)",
+        4: "Alfabetização de jovens e adultos",
+        5: "Antigo primário (elementar)",
+        6: "Antigo ginásio (médio 1º ciclo)",
+        7: "Ensino fundamental regular",
+        8: "EJA ou supletivo do 1º grau",
+        9: "Antigo científico, clássico etc. (médio 2º ciclo)",
+        10: "Ensino médio regular",
+        11: "EJA ou supletivo do 2º grau",
+        12: "Superior - graduação",
+        13: "Especialização",
+        14: "Mestrado",
+        15: "Doutorado",
     }
 
     if "Escolaridade" in df.columns:
@@ -154,6 +178,9 @@ def adicionar_escolaridade_desc(df: pd.DataFrame) -> pd.DataFrame:
 def adicionar_sexo_desc(df: pd.DataFrame) -> pd.DataFrame:
     df = df.copy()
 
+    if df.empty:
+        return df
+
     mapa = {
         1: "Homem",
         2: "Mulher",
@@ -161,13 +188,18 @@ def adicionar_sexo_desc(df: pd.DataFrame) -> pd.DataFrame:
 
     if "Sexo" in df.columns:
         df["Sexo_Num"] = pd.to_numeric(df["Sexo"], errors="coerce")
-        df["Sexo_Desc"] = df["Sexo_Num"].map(mapa).fillna(df["Sexo"].astype(str))
+        df["Sexo_Desc"] = df["Sexo_Num"].map(mapa).fillna(
+            df["Sexo"].astype(str)
+        )
 
     return df
 
 
 def adicionar_cor_raca_desc(df: pd.DataFrame) -> pd.DataFrame:
     df = df.copy()
+
+    if df.empty:
+        return df
 
     mapa = {
         1: "Branca",
