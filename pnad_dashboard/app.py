@@ -18,7 +18,7 @@ st.markdown(
     com foco em mercado de trabalho e renda da população brasileira. 
     Elaborado como parte da entrega final do Trabalho de Conclusão de Curso do curso de Análise e Desenvolvimento de Sistemas do IFPE.
 
-    Título do trabalho: "Integração e Mineração de Dados: uma abordagem em Ciência de Dados aplicada à análise da mobilidade social e inserção no mercado de trabalho"
+    Título do trabalho: "Ciência de Dados Aplicada ao Mercado de Trabalho de Pernambuco: processamento e visualização dos microdados da PNAD Contínua"
 
     Discentes: Karen Evellyn Vieira Ribeiro e Rodrigo Sena Rodrigues
     
