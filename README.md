@@ -568,7 +568,9 @@ Analisa:
 
 ---
 
-## 9. Como Executar o Projeto
+## 9. Como Executar o Projeto 
+**(Obs: É necessário ter os arquivos pertencentes a extração antes de executar o projeto.**
+**Caso não tenha, execute o arquivo `pnad_extração.py` seguindo esse caminho TCC\src\pnad_extracao.py)**
 
 ### 1. Criar ambiente virtual
 
