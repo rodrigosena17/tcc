@@ -620,6 +620,7 @@ No Linux/Mac:
 Melhorias futuras a serem implementdas:
 
 - Automatizar a atualização dos arquivos empilhados para os próximos anos;
+- Disponibilizar serviço através de infraestrutura em nuvem;
 - Adicionar filtros geográficos;
 - Incluir análises por UF, região e setor de atividade;
 - Incorporar novos indicadores de rendimento;
