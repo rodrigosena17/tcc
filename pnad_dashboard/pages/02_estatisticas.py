@@ -109,7 +109,98 @@ def filtrar_ano_tri(df, prefixo):
 
     return ano, tris_sel
 
+def preparar_dados_grafico(
+    df,
+    coluna_categoria,
+    coluna_valor,
+    colunas_cor=None,
+):
+    """
+    Padroniza os dados usados nos gráficos categóricos.
 
+    - Converte o valor para numérico;
+    - Remove valores realmente nulos;
+    - Converte categorias para texto;
+    - Remove categorias vazias, 'nan' e '<NA>';
+    - Converte colunas de cor para texto.
+    """
+    dados = df.copy()
+    colunas_cor = colunas_cor or []
+
+    dados[coluna_valor] = pd.to_numeric(
+        dados[coluna_valor],
+        errors="coerce",
+    )
+
+    dados[coluna_categoria] = (
+        dados[coluna_categoria]
+        .astype("string")
+        .str.strip()
+    )
+
+    dados = dados.dropna(
+        subset=[coluna_categoria, coluna_valor]
+    ).copy()
+
+    categorias_invalidas = ["", "nan", "NaN", "<NA>", "None"]
+
+    dados = dados[
+        ~dados[coluna_categoria].isin(categorias_invalidas)
+    ].copy()
+
+    for coluna in colunas_cor:
+        if coluna in dados.columns:
+            dados[coluna] = (
+                dados[coluna]
+                .astype("string")
+                .fillna("Não informado")
+            )
+
+    return dados
+
+
+def configurar_valores_monetarios(fig):
+    fig.update_yaxes(
+        tickformat=",.2f",
+        separatethousands=True,
+    )
+    fig.update_traces(
+        hovertemplate=(
+            "%{x}<br>"
+            "Valor: R$ %{y:,.2f}"
+            "<extra></extra>"
+        )
+    )
+    return fig
+
+
+def configurar_percentuais(fig, horizontal=False):
+    if horizontal:
+        fig.update_xaxes(
+            tickformat=".1f",
+            ticksuffix="%",
+        )
+        fig.update_traces(
+            hovertemplate=(
+                "%{y}<br>"
+                "Percentual: %{x:.2f}%"
+                "<extra></extra>"
+            )
+        )
+    else:
+        fig.update_yaxes(
+            tickformat=".1f",
+            ticksuffix="%",
+        )
+        fig.update_traces(
+            hovertemplate=(
+                "%{x}<br>"
+                "Percentual: %{y:.2f}%"
+                "<extra></extra>"
+            )
+        )
+
+    return fig
 
 if modulo == "Panorama Geral":
     st.header("Panorama Geral")
@@ -329,38 +420,90 @@ elif modulo == "Escolaridade x Renda":
     ano, tris_sel = filtrar_ano_tri(df_esc, "esc")
 
     df_f = df_esc[
-        (df_esc["Ano"] == ano) & (df_esc["Trimestre"].isin(tris_sel))
+        (df_esc["Ano"] == ano)
+        & (df_esc["Trimestre"].isin(tris_sel))
     ].copy()
+
+    df_f["Trimestre_Desc"] = (
+        "T" + df_f["Trimestre"].astype("Int64").astype(str)
+    )
+
+    df_f = preparar_dados_grafico(
+        df_f,
+        coluna_categoria="Escolaridade_Desc",
+        coluna_valor="Renda_Total",
+        colunas_cor=["Trimestre_Desc"],
+    )
 
     if df_f.empty:
         st.warning("Nenhum dado para os filtros selecionados.")
     else:
         if len(tris_sel) > 1:
+            agg = (
+                df_f.groupby(
+                    ["Escolaridade_Desc", "Trimestre_Desc"],
+                    as_index=False,
+                    dropna=False,
+                )["Renda_Total"]
+                .sum()
+            )
+
             fig_v = grafico_barras(
-                df_f,
+                agg,
                 x="Escolaridade_Desc",
                 y="Renda_Total",
                 titulo="Renda Total (R$) por Escolaridade",
-                cor="Trimestre",
-            )
-            st.plotly_chart(fig_v, width='stretch')
-        else:
-            agg = (
-                df_f.groupby("Escolaridade_Desc")["Renda_Total"]
-                .sum()
-                .reset_index()
+                cor="Trimestre_Desc",
             )
 
-            agg_ord = agg.sort_values("Renda_Total", ascending=True)
+            fig_v.update_yaxes(
+                tickformat=",.2f",
+                separatethousands=True,
+            )
+
+            fig_v.update_traces(
+                hovertemplate=(
+                    "Escolaridade: %{x}<br>"
+                    "Renda total: R$ %{y:,.2f}"
+                    "<extra></extra>"
+                )
+            )
+
+            st.plotly_chart(fig_v, width="stretch")
+
+        else:
+            agg = (
+                df_f.groupby(
+                    "Escolaridade_Desc",
+                    as_index=False,
+                    dropna=False,
+                )["Renda_Total"]
+                .sum()
+                .sort_values("Renda_Total", ascending=True)
+            )
+
             fig_h = grafico_barras(
-                agg_ord,
+                agg,
                 x="Escolaridade_Desc",
                 y="Renda_Total",
                 titulo="Renda Total (R$) por Escolaridade",
                 orientacao="h",
             )
-            st.plotly_chart(fig_h, width='stretch')
 
+            fig_h.update_xaxes(
+                tickformat=",.2f",
+                separatethousands=True,
+            )
+
+            fig_h.update_traces(
+                hovertemplate=(
+                    "Escolaridade: %{y}<br>"
+                    "Renda total: R$ %{x:,.2f}"
+                    "<extra></extra>"
+                )
+            )
+
+            st.plotly_chart(fig_h, width="stretch")
 
 elif modulo == "Horas Trabalhadas x Renda":
     st.header("Horas Trabalhadas x Renda")
@@ -450,8 +593,8 @@ elif modulo == "Idade x Renda":
                 rotulo_y="Renda Média Mensal",
             )
 
-        st.plotly_chart(fig, width='stretch')
         fig.update_layout(xaxis_title="Idade")
+        st.plotly_chart(fig, width='stretch')
 
 
 
@@ -489,7 +632,7 @@ elif modulo == "Tempo de Trabalho x Renda":
 
 
 elif modulo == "Escolaridade x Ocupacao":
-    st.header("Escolaridade x Ocupacao")
+    st.header("Escolaridade x Ocupação")
     st.sidebar.subheader("Filtros")
 
     ano, tris_sel = filtrar_ano_tri(df_esc_ocup, "escocup")
@@ -499,34 +642,84 @@ elif modulo == "Escolaridade x Ocupacao":
         & (df_esc_ocup["Trimestre"].isin(tris_sel))
     ].copy()
 
+    df_f["Trimestre_Desc"] = (
+        "T" + df_f["Trimestre"].astype("Int64").astype(str)
+    )
+
+    df_f = preparar_dados_grafico(
+        df_f,
+        coluna_categoria="Escolaridade_Desc",
+        coluna_valor="Percentual_Ocupados",
+        colunas_cor=["Trimestre_Desc"],
+    )
+
     if df_f.empty:
         st.warning("Nenhum dado para os filtros selecionados.")
     else:
         if len(tris_sel) > 1:
-            fig_h = grafico_barras(
-                df_f,
+            agg = (
+                df_f.groupby(
+                    ["Escolaridade_Desc", "Trimestre_Desc"],
+                    as_index=False,
+                    dropna=False,
+                )["Percentual_Ocupados"]
+                .mean()
+            )
+
+            fig = grafico_barras(
+                agg,
                 x="Escolaridade_Desc",
                 y="Percentual_Ocupados",
                 titulo="Percentual de Ocupados por Escolaridade",
-                cor="Trimestre",
-            )
-        else:
-            agg = (
-                df_f.groupby("Escolaridade_Desc")["Percentual_Ocupados"]
-                .mean()
-                .reset_index()
+                cor="Trimestre_Desc",
             )
 
-            fig_h = grafico_barras(
-                agg.sort_values("Percentual_Ocupados"),
+            fig.update_yaxes(
+                tickformat=".1f",
+                ticksuffix="%",
+            )
+
+            fig.update_traces(
+                hovertemplate=(
+                    "Escolaridade: %{x}<br>"
+                    "Ocupados: %{y:.2f}%"
+                    "<extra></extra>"
+                )
+            )
+
+        else:
+            agg = (
+                df_f.groupby(
+                    "Escolaridade_Desc",
+                    as_index=False,
+                    dropna=False,
+                )["Percentual_Ocupados"]
+                .mean()
+                .sort_values("Percentual_Ocupados", ascending=True)
+            )
+
+            fig = grafico_barras(
+                agg,
                 x="Escolaridade_Desc",
                 y="Percentual_Ocupados",
                 titulo="Percentual de Ocupados por Escolaridade",
                 orientacao="h",
             )
 
-        st.plotly_chart(fig_h, width='stretch')
+            fig.update_xaxes(
+                tickformat=".1f",
+                ticksuffix="%",
+            )
 
+            fig.update_traces(
+                hovertemplate=(
+                    "Escolaridade: %{y}<br>"
+                    "Ocupados: %{x:.2f}%"
+                    "<extra></extra>"
+                )
+            )
+
+        st.plotly_chart(fig, width="stretch")
 
 elif modulo == "Escolaridade x Carteira Assinada":
     st.header("Escolaridade x Carteira Assinada")
@@ -625,12 +818,19 @@ elif modulo == "Sexo x Renda x Escolaridade":
 
 
 elif modulo == "Cor/Raca x Escolaridade x Renda":
-    st.header("Cor/Raca x Escolaridade x Renda")
+    st.header("Cor/Raça × Escolaridade × Renda")
     st.sidebar.subheader("Filtros")
 
     ano, tris_sel = filtrar_ano_tri(df_raca_esc, "racaesc")
 
-    racas = sorted(df_raca_esc["Cor_Raca_Desc"].dropna().unique().tolist())
+    racas = sorted(
+        df_raca_esc["Cor_Raca_Desc"]
+        .dropna()
+        .astype(str)
+        .unique()
+        .tolist()
+    )
+
     with st.sidebar:
         raca_sel = st.multiselect(
             "Cor/Raça",
@@ -642,37 +842,77 @@ elif modulo == "Cor/Raca x Escolaridade x Renda":
     df_f = df_raca_esc[
         (df_raca_esc["Ano"] == ano)
         & (df_raca_esc["Trimestre"].isin(tris_sel))
-        & (df_raca_esc["Cor_Raca_Desc"].isin(raca_sel))
+        & (df_raca_esc["Cor_Raca_Desc"].astype(str).isin(raca_sel))
     ].copy()
+
+    df_f["Trimestre_Desc"] = (
+        "T" + df_f["Trimestre"].astype("Int64").astype(str)
+    )
+
+    if len(tris_sel) > 1:
+        df_f["Serie"] = (
+            df_f["Cor_Raca_Desc"].astype(str)
+            + " - "
+            + df_f["Trimestre_Desc"].astype(str)
+        )
+        colunas_cor = ["Serie"]
+    else:
+        colunas_cor = ["Cor_Raca_Desc"]
+
+    df_f = preparar_dados_grafico(
+        df_f,
+        coluna_categoria="Escolaridade_Desc",
+        coluna_valor="Renda_Media",
+        colunas_cor=colunas_cor,
+    )
 
     if df_f.empty:
         st.warning("Nenhum dado para os filtros selecionados.")
     else:
         if len(tris_sel) > 1:
-            df_f["Serie"] = (
-                df_f["Cor_Raca_Desc"]
-                + " - T"
-                + df_f["Trimestre"].astype(str)
+            agg = (
+                df_f.groupby(
+                    ["Escolaridade_Desc", "Serie"],
+                    as_index=False,
+                    dropna=False,
+                )["Renda_Media"]
+                .mean()
             )
 
-            fig_h = grafico_barras(
-                df_f,
+            fig = grafico_barras(
+                agg,
                 x="Escolaridade_Desc",
                 y="Renda_Media",
                 titulo="Renda Média (R$) por Cor/Raça e Escolaridade",
                 cor="Serie",
             )
+
+            fig.update_yaxes(
+                tickformat=",.2f",
+                separatethousands=True,
+            )
+
+            fig.update_traces(
+                hovertemplate=(
+                    "Escolaridade: %{x}<br>"
+                    "Renda média: R$ %{y:,.2f}"
+                    "<extra></extra>"
+                )
+            )
+
         else:
             agg = (
                 df_f.groupby(
-                    ["Escolaridade_Desc", "Cor_Raca_Desc"]
+                    ["Escolaridade_Desc", "Cor_Raca_Desc"],
+                    as_index=False,
+                    dropna=False,
                 )["Renda_Media"]
                 .mean()
-                .reset_index()
+                .sort_values("Renda_Media", ascending=True)
             )
 
-            fig_h = grafico_barras(
-                agg.sort_values("Renda_Media"),
+            fig = grafico_barras(
+                agg,
                 x="Escolaridade_Desc",
                 y="Renda_Media",
                 titulo="Renda Média (R$) por Cor/Raça e Escolaridade",
@@ -680,4 +920,17 @@ elif modulo == "Cor/Raca x Escolaridade x Renda":
                 orientacao="h",
             )
 
-        st.plotly_chart(fig_h, width='stretch')
+            fig.update_xaxes(
+                tickformat=",.2f",
+                separatethousands=True,
+            )
+
+            fig.update_traces(
+                hovertemplate=(
+                    "Escolaridade: %{y}<br>"
+                    "Renda média: R$ %{x:,.2f}"
+                    "<extra></extra>"
+                )
+            )
+
+        st.plotly_chart(fig, width="stretch")

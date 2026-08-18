@@ -86,30 +86,43 @@ def grafico_barras(df, x, y, titulo, cor=None, orientacao="v"):
     if orientacao == "h":
         fig = px.bar(
             df,
-            x=y,
-            y=x,
+            x=y,  # valor numérico
+            y=x,  # categoria
             color=cor,
             orientation="h",
             color_discrete_sequence=PALETA,
         )
+
         x_title = y.replace("_", " ")
         y_title = x.replace("_", " ")
+
+        # gráfico horizontal
+        fig.update_traces(
+            marker_line_width=0,
+            texttemplate="%{x:.2f}",
+            textposition="outside",
+            cliponaxis=False,
+        )
+
     else:
         fig = px.bar(
             df,
-            x=x,
-            y=y,
+            x=x,  # categoria
+            y=y,  # valor numérico
             color=cor,
             color_discrete_sequence=PALETA,
         )
+
         x_title = x.replace("_", " ")
         y_title = y.replace("_", " ")
 
-    fig.update_traces(
-        marker_line_width=0,
-        texttemplate='%{y:.2f}',
-        textposition='outside'                 
-    )
+        # gráfico vertical
+        fig.update_traces(
+            marker_line_width=0,
+            texttemplate="%{y:.2f}",
+            textposition="outside",
+            cliponaxis=False,
+        )
 
     fig.update_layout(
         title=titulo,
@@ -119,7 +132,16 @@ def grafico_barras(df, x, y, titulo, cor=None, orientacao="v"):
     if orientacao != "h":
         fig.update_xaxes(tickangle=35)
 
-    fig = _aplicar_estilo_eixos(fig, xaxis_title=x_title, yaxis_title=y_title)
+    if orientacao == "h":
+        fig.update_layout(
+            margin=dict(l=180, r=120, t=70, b=60)
+        )
+
+    fig = _aplicar_estilo_eixos(
+        fig,
+        xaxis_title=x_title,
+        yaxis_title=y_title,
+    )
 
     return fig
 
