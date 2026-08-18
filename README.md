@@ -36,7 +36,6 @@ A partir desses dados, o dashboard permite analisar:
 - Streamlit
 - Pandas
 - Plotly
-- PNAD Contínua / IBGE
 
 ---
 
